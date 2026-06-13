@@ -1,0 +1,16 @@
+[Unit]
+Description=Mediastack: weekly configuration backup
+Documentation=file:///opt/mediastack/README.md
+After=docker.service
+
+[Service]
+Type=oneshot
+User=mediastack
+Group=mediastack
+WorkingDirectory=/opt/mediastack
+Environment=MEDIASTACK_DIR=/opt/mediastack
+EnvironmentFile=-/opt/mediastack/.env
+ExecStart=/opt/mediastack/scripts/backup-config.sh
+# A failed backup should show in journal/monitoring, but it should not disable
+# future timer attempts. The next scheduled run will retry.
+SuccessExitStatus=0

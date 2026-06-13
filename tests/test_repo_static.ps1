@@ -6,6 +6,8 @@ $updateScript = Join-Path $repoRoot "scripts/update.sh"
 $envExample = Join-Path $repoRoot ".env.example"
 $safetyDoc = Join-Path $repoRoot "docs/SAFETY.md"
 $backupScript = Join-Path $repoRoot "scripts/backup-config.sh"
+$backupService = Join-Path $repoRoot "scripts/backup-config.service"
+$backupTimer = Join-Path $repoRoot "scripts/backup-config.timer"
 $restoreScript = Join-Path $repoRoot "scripts/restore-config-test.sh"
 $hardlinkScript = Join-Path $repoRoot "scripts/test-hardlinks.sh"
 $homepageInstallScript = Join-Path $repoRoot "scripts/install-homepage-config.sh"
@@ -249,11 +251,34 @@ Assert-Contains `
     -Message "Unpackerr must default UN_RADARR_0_DELETE_DELAY to UNPACKERR_DELETE_DELAY (9999h)."
 
 # Required safety scripts and the SAFETY.md doc must exist.
-foreach ($p in @($safetyDoc, $backupScript, $restoreScript, $hardlinkScript, $homepageInstallScript)) {
+foreach ($p in @($safetyDoc, $backupScript, $backupService, $backupTimer, $restoreScript, $hardlinkScript, $homepageInstallScript)) {
     if (-not (Test-Path -LiteralPath $p)) {
         throw "Missing required safety artifact: $p"
     }
 }
+
+$backupServiceText = Get-Content -Raw -Path $backupService
+$backupTimerText = Get-Content -Raw -Path $backupTimer
+
+Assert-Contains `
+    -Text $backupServiceText `
+    -Pattern 'ExecStart=/opt/mediastack/scripts/backup-config\.sh' `
+    -Message "backup-config.service must run the repo backup script."
+
+Assert-Contains `
+    -Text $backupServiceText `
+    -Pattern 'EnvironmentFile=-/opt/mediastack/\.env' `
+    -Message "backup-config.service must read /opt/mediastack/.env for BACKUP_ROOT."
+
+Assert-Contains `
+    -Text $backupTimerText `
+    -Pattern 'OnCalendar=Sun \*-\*-\* 10:15:00' `
+    -Message "backup-config.timer must run weekly on Sunday morning."
+
+Assert-Contains `
+    -Text $backupTimerText `
+    -Pattern 'Persistent=true' `
+    -Message "backup-config.timer must catch up missed runs after boot."
 
 foreach ($name in @("settings.yaml", "services.yaml", "widgets.yaml", "bookmarks.yaml", "docker.yaml")) {
     $path = Join-Path $homepageTemplateDir $name

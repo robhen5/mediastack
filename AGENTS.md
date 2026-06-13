@@ -74,6 +74,8 @@ For deployment work, verify:
 - One successful hardlink import from download folder to media folder
 - Jellyfin playback and Intel Quick Sync behavior
 - Config backup and restore rehearsal
+- Weekly `backup-config.timer` is installed only after a manual backup succeeds
+  and at least one backup tarball is copied off-host.
 
 ## Hardware Guidance
 

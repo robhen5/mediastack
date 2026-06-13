@@ -235,6 +235,8 @@ tar -xzf "$BACKUP_ROOT/config-test-$(date +%Y%m%d).tar.gz" -C /tmp/mediastack-re
 - `scripts/backup-config.sh` archives `.env`, `config/`, `docker-compose.yml`,
   and `scripts/` into `BACKUP_ROOT` with a verified tarball, rotation
   (default keep last 6), and `DRY_RUN=1` support. Run weekly.
+- `scripts/backup-config.service` and `scripts/backup-config.timer` install
+  that backup as a weekly Sunday 10:15 AM systemd timer on the Ubuntu host.
 - `scripts/restore-config-test.sh` extracts the newest backup to a temp dir
   and confirms it contains the expected layout. Run quarterly.
 - `scripts/test-hardlinks.sh` proves that `torrents/` and `media/` share one

@@ -163,6 +163,21 @@ Hardlink test (re-run after every storage layout change):
 ./scripts/test-hardlinks.sh
 ```
 
+Install weekly config backups after the first successful manual backup:
+
+```bash
+sudo install -m644 /opt/mediastack/scripts/backup-config.service /etc/systemd/system/
+sudo install -m644 /opt/mediastack/scripts/backup-config.timer /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now backup-config.timer
+systemctl list-timers backup-config.timer --no-pager
+sudo systemctl start backup-config.service
+journalctl -u backup-config.service -n 30 --no-pager
+```
+
+Keep copying at least one recent backup tarball off the server. The timer
+protects against app/config loss, not SSD failure or whole-machine loss.
+
 ## Phase 6: After Core Is Stable
 
 Only after the first-deploy profile passes:
