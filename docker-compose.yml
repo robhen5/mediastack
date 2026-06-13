@@ -1,0 +1,692 @@
+# ============================================================
+#  Media Automation Stack - Jellyfin-centric
+#  Target: Ubuntu Server now, Unraid-ready later
+# ============================================================
+#
+#  FOLDER LAYOUT - set this up FIRST (critical for hardlinks):
+#
+#    MEDIASTACK_ROOT=/opt/mediastack        <- repo/scripts on SSD
+#    CONFIG_ROOT=/opt/mediastack/config     <- app databases, metadata, logs
+#    BACKUP_ROOT=/opt/mediastack/backups    <- config backup staging
+#    DATA_ROOT=/media/storage/data          <- HDD/pool-backed shared data root
+#      |-- torrents/                        <- qBittorrent downloads land here
+#      |-- media/                           <- *arrs hardlink finished video here
+#      |-- books/
+#      |-- audiobooks/
+#      `-- manga/
+#
+#  Every container that touches media mounts the SAME /data root so
+#  Sonarr/Radarr can HARDLINK instead of copy (instant moves; file
+#  keeps seeding while also living in the library). Different
+#  filesystems = silent slow full copies. Keep it all on one disk.
+#
+#  This compose file is parameterized for the Lenovo/Exos plan. Set paths in
+#  .env. Keep application config on SSD-backed storage and downloads + media
+#  under one HDD/pool-backed /data filesystem. Windows is for staging/testing
+#  only; production should be Ubuntu Server or Unraid.
+#
+#  CONSERVATIVE FIRST DEPLOY:
+#  docker compose --profile first-deploy up -d
+#  This starts only Gluetun, qBittorrent, Prowlarr, Sonarr, Radarr, Bazarr,
+#  Jellyfin, and Jellyseerr. Cleanup tools are behind the cleanup profile.
+#
+#  CONNECTION GOTCHA: qBittorrent shares gluetun's network namespace,
+#  so it has no hostname of its own. Anything that talks to qBittorrent
+#  (Sonarr, Radarr, autobrr, cross-seed, qbitmanage) must use
+#  host = gluetun, port = 8080  --  NOT host = qbittorrent.
+#
+#  Set PUID/PGID from id -u / id -g on the target host.
+# ============================================================
+
+services:
+
+  # ================================================================
+  #  CORE: VPN + downloads
+  # ================================================================
+
+  # ---- VPN gateway — torrent traffic routes THROUGH this -----------
+  gluetun:
+    image: qmcgaw/gluetun:latest
+    container_name: gluetun
+    profiles: ["first-deploy", "core"]
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    ports:
+      - 8081:8080        # qBittorrent WebUI — host 8081 (headscale owns host 8080)
+      - 6881:6881        # torrent listen port
+      - 6881:6881/udp
+      - 5299:5299        # LazyLibrarian WebUI (shares gluetun's namespace)
+    volumes:
+      - ${CONFIG_ROOT:-/opt/mediastack/config}/gluetun:/gluetun
+      # Scripts bind-mounted in so the port-forward hook can run from a
+      # file we can edit on the host (rather than baked into the image).
+      - ${MEDIASTACK_ROOT:-/opt/mediastack}/scripts:/scripts:ro
+    environment:
+      - VPN_SERVICE_PROVIDER=protonvpn
+      - VPN_TYPE=wireguard
+      - WIREGUARD_PRIVATE_KEY=${WIREGUARD_PRIVATE_KEY}
+      - WIREGUARD_ADDRESSES=${WIREGUARD_ADDRESSES}
+      - SERVER_COUNTRIES=Netherlands
+      - VPN_PORT_FORWARDING=on
+      - VPN_PORT_FORWARDING_PROVIDER=protonvpn
+      - TZ=${TZ:-America/New_York}
+      # Instant sync of qBit's listen port on every NAT-PMP "port up" event
+      # The 5-min polling timer remains as a safety net.
+      - VPN_PORT_FORWARDING_UP_COMMAND=/bin/sh /scripts/gluetun-port-hook.sh {{PORT}}
+      # qBit creds for the hook script — passed through from .env.
+      - QBIT_USER=${QBIT_USER}
+      - QBIT_PASS=${QBIT_PASS}
+      # Disable gluetun's DNS block lists. They mis-classify some legitimate
+      # destinations for this stack (e.g. annas-archive.org under
+      # "malicious"), causing silent DNS failures for LazyLibrarian's
+      # downloads. System-wide DoT (§7.1) still encrypts our lookups.
+      - BLOCK_MALICIOUS=off
+      - BLOCK_SURVEILLANCE=off
+      - BLOCK_ADS=off
+    restart: unless-stopped
+
+  # ---- Torrent client (inside gluetun's network namespace) ---------
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    profiles: ["first-deploy", "core"]
+    network_mode: "service:gluetun"
+    depends_on:
+      - gluetun
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-America/New_York}
+      - WEBUI_PORT=8080
+    volumes:
+      - ${CONFIG_ROOT:-/opt/mediastack/config}/qbittorrent:/config
+      - ${DATA_ROOT:-/media/storage/data}:/data
+    restart: unless-stopped
+
+  # ================================================================
+  #  CORE: indexers + automation
+  # ================================================================
+
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    profiles: ["first-deploy", "core"]
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-America/New_York}
+    volumes:
+      - ${CONFIG_ROOT:-/opt/mediastack/config}/prowlarr:/config
+    ports:
+      - 9696:9696
+    restart: unless-stopped
+
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    profiles: ["optional", "indexers"]
+    environment:
+      - TZ=${TZ:-America/New_York}
+    ports:
+      - 8191:8191
+    restart: unless-stopped
+
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    profiles: ["first-deploy", "core"]
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-America/New_York}
+    volumes:
+      - ${CONFIG_ROOT:-/opt/mediastack/config}/sonarr:/config
+      - ${DATA_ROOT:-/media/storage/data}:/data
+    ports:
+      - 8989:8989
+    restart: unless-stopped
+
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    profiles: ["first-deploy", "core"]
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-America/New_York}
+    volumes:
+      - ${CONFIG_ROOT:-/opt/mediastack/config}/radarr:/config
+      - ${DATA_ROOT:-/media/storage/data}:/data
+    ports:
+      - 7878:7878
+    restart: unless-stopped
+
+  # ---- Subtitles — configure to fetch BOTH ja + en ----------------
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    container_name: bazarr
+    profiles: ["first-deploy", "core"]
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-America/New_York}
+    volumes:
+      - ${CONFIG_ROOT:-/opt/mediastack/config}/bazarr:/config
+      - ${DATA_ROOT:-/media/storage/data}:/data
+    ports:
+      - 6767:6767
+    restart: unless-stopped
+
+  # ================================================================
+  #  CORE: front-end + media server
+  # ================================================================
+
+  jellyseerr:
+    image: fallenbagel/jellyseerr:latest
+    container_name: jellyseerr
+    profiles: ["first-deploy", "core"]
+    environment:
+      - TZ=${TZ:-America/New_York}
+    volumes:
+      - ${CONFIG_ROOT:-/opt/mediastack/config}/jellyseerr:/app/config
+    ports:
+      - 5055:5055
+    restart: unless-stopped
+
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin:latest
+    container_name: jellyfin
+    profiles: ["first-deploy", "core"]
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-America/New_York}
+    volumes:
+      - ${CONFIG_ROOT:-/opt/mediastack/config}/jellyfin:/config
+      - ${DATA_ROOT:-/media/storage/data}/media:/data/media
+    ports:
+      - 8096:8096
+    devices:
+      - /dev/dri:/dev/dri        # Intel Quick Sync on i5-10400 (UHD 630)
+    group_add:
+      # Numeric GIDs from target host (getent group render / video).
+      - "${RENDER_GID:-107}"   # render
+      - "${VIDEO_GID:-44}"    # video
+    restart: unless-stopped
+
+  # ================================================================
+  #  BELLS & WHISTLES: the self-maintaining "cycle"
+  # ================================================================
+
+  # ---- Syncs TRaSH quality profiles into Sonarr/Radarr -------------
+  # Make an anime profile that prefers softsubbed / multi-sub releases.
+  recyclarr:
+    image: ghcr.io/recyclarr/recyclarr:latest
+    container_name: recyclarr
+    profiles: ["optional", "automation"]
+    user: "${PUID:-1000}:${PGID:-1000}"
+    volumes:
+      - ${CONFIG_ROOT:-/opt/mediastack/config}/recyclarr:/config
+    environment:
+      - TZ=${TZ:-America/New_York}
+      # Runs `recyclarr sync` on this schedule. Set to noon since the host
+      # isn't on at 3am — cron does NOT catch up missed runs.
+      - CRON_SCHEDULE=0 12 * * *
+    restart: unless-stopped
+
+  # ---- Instant grabs from private-tracker announce channels --------
+  # In autobrr, point the qBittorrent client at host=gluetun port=8080.
+  autobrr:
+    image: ghcr.io/autobrr/autobrr:latest
+    container_name: autobrr
+    profiles: ["optional", "automation"]
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-America/New_York}
+    volumes:
+      - ${CONFIG_ROOT:-/opt/mediastack/config}/autobrr:/config
+    ports:
+      - 7474:7474
+    restart: unless-stopped
+
+  # ---- Seeds your downloads across additional trackers -------------
+  # Uses Prowlarr (prowlarr:9696) for searching, gluetun:8080 for qbit.
+  # SAFETY: cross-seed creates *links* to existing torrent data — never copies
+  # or moves the originals. The risk is misconfiguration of `linkDir` /
+  # `dataDirs` causing the *arrs to import a cross-seeded copy as a separate
+  # release. Before enabling, set `action: "save"` in config.js for at least
+  # one week (it only writes .torrent files; does not inject into qBit), and
+  # leave `linkType: "hardlink"` so links stay inside DATA_ROOT. See
+  # docs/SAFETY.md "Enabling cross-seed."
+  cross-seed:
+    image: ghcr.io/cross-seed/cross-seed:latest
+    container_name: cross-seed
+    profiles: ["optional", "automation"]
+    user: "${PUID:-1000}:${PGID:-1000}"
+    command: daemon
+    environment:
+      - TZ=${TZ:-America/New_York}
+      # config.js reads these via process.env
+      - QBIT_USER=${QBIT_USER}
+      - QBIT_PASS=${QBIT_PASS}
+      - PROWLARR_APIKEY=${PROWLARR_APIKEY}
+    volumes:
+      - ${CONFIG_ROOT:-/opt/mediastack/config}/cross-seed:/config
+      - ${DATA_ROOT:-/media/storage/data}/torrents:/data/torrents
+    ports:
+      - 2468:2468
+    restart: unless-stopped
+
+  # ---- Ratio enforcement, tagging, orphan cleanup for qBittorrent --
+  # DISABLED BY DEFAULT. Behind the `cleanup` profile AND defaults to dry-run.
+  # qbit_manage can permanently delete torrents and their on-disk files.
+  # Do not enable the `cleanup` profile until:
+  #   1. Config backups are verified and a restore rehearsal succeeded.
+  #   2. Hardlink behavior is verified end-to-end (see scripts/test-hardlinks.sh).
+  #   3. Tracker seed-time rules are configured per-tracker in config.yml.
+  #   4. You have run at least one week in QBT_DRY_RUN=true and reviewed the
+  #      report-only output so you know exactly what it would remove.
+  # Flip QBT_DRY_RUN to false (in .env) only after that review.
+  # In its config.yml, qBittorrent host = gluetun, port = 8080.
+  qbitmanage:
+    image: ghcr.io/stuffanthings/qbit_manage:latest
+    container_name: qbitmanage
+    profiles: ["cleanup"]
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-America/New_York}
+      - QBT_RUN_MODE=schedule
+      - QBT_SCHEDULE=30          # run every 30 min
+      # SAFETY DEFAULT: report-only. Override to "false" in .env only after
+      # reviewing a dry-run report and confirming nothing legitimate is on the
+      # remove list. See docs/SAFETY.md "Enabling cleanup tools."
+      - QBT_DRY_RUN=${QBT_DRY_RUN:-true}
+      # Passed through to config.yml via the !ENV directive.
+      - QBIT_USER=${QBIT_USER}
+      - QBIT_PASS=${QBIT_PASS}
+    volumes:
+      - ${CONFIG_ROOT:-/opt/mediastack/config}/qbitmanage:/config
+      - ${DATA_ROOT:-/media/storage/data}/torrents:/data/torrents
+    restart: unless-stopped
+
+  # ---- Auto-extract archived releases so the *arrs can import ------
+  # Unpackerr extracts .rar/.zip releases into the same torrent folder so
+  # Sonarr/Radarr can import them. It does NOT touch the original archive
+  # files (DELETE_ORIG=false), and the safe defaults below also keep the
+  # extracted files in place after import. The *arr import is a hardlink
+  # operation, so disk usage is unchanged; you can manually clean extracted
+  # working files later once you trust the flow. See docs/SAFETY.md.
+  unpackerr:
+    image: ghcr.io/hotio/unpackerr:latest
+    container_name: unpackerr
+    profiles: ["optional", "automation"]
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-America/New_York}
+      # Safety defaults: never delete originals; keep extracted files until
+      # the operator confirms imports landed correctly. Switch DELETE_DELAY
+      # to something sane like `1h` only after 30 days of clean imports.
+      - UN_SONARR_0_DELETE_ORIG=false
+      - UN_RADARR_0_DELETE_ORIG=false
+      - UN_SONARR_0_DELETE_DELAY=${UNPACKERR_DELETE_DELAY:-9999h}
+      - UN_RADARR_0_DELETE_DELAY=${UNPACKERR_DELETE_DELAY:-9999h}
+      # Sonarr: extract any archives the *arr would otherwise fail to import.
+      - UN_SONARR_0_URL=http://sonarr:8989
+      - UN_SONARR_0_API_KEY=${SONARR_APIKEY}
+      - UN_SONARR_0_PATHS_0=/data/torrents/tv-sonarr
+      - UN_SONARR_0_PROTOCOLS=torrent
+      # Radarr: same.
+      - UN_RADARR_0_URL=http://radarr:7878
+      - UN_RADARR_0_API_KEY=${RADARR_APIKEY}
+      - UN_RADARR_0_PATHS_0=/data/torrents/radarr
+      - UN_RADARR_0_PROTOCOLS=torrent
+    volumes:
+      - ${CONFIG_ROOT:-/opt/mediastack/config}/unpackerr:/config
+      - ${DATA_ROOT:-/media/storage/data}:/data
+    restart: unless-stopped
+
+  # ================================================================
+  #  BOOKS — libgen-friendly stack (replaces retired Readarr)
+  # ================================================================
+
+  # ---- Acquisition + author monitoring; has native libgen support -
+  # Set its download destination to /data/books/ingest so that
+  # Calibre-Web Automated picks finished books up automatically.
+  # NOTE: libgen DIRECT downloads come straight from this container
+  # (not via the VPN). To route them through gluetun too, give this
+  # service `network_mode: "service:gluetun"` and expose 5299 on
+  # gluetun instead — see chat notes.
+  # Routed through gluetun so libgen direct downloads use the VPN.
+  # Shares gluetun's network namespace — same pattern as qBittorrent.
+  # Sibling services that talk to LazyLibrarian must use `gluetun:5299`,
+  # NOT `lazylibrarian:5299`, per the §8 gotcha.
+  lazylibrarian:
+    image: lscr.io/linuxserver/lazylibrarian:latest
+    container_name: lazylibrarian
+    profiles: ["optional", "books"]
+    network_mode: "service:gluetun"
+    depends_on:
+      - gluetun
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-America/New_York}
+    volumes:
+      - ${CONFIG_ROOT:-/opt/mediastack/config}/lazylibrarian:/config
+      - ${DATA_ROOT:-/media/storage/data}:/data
+    restart: unless-stopped
+
+  # ---- Ebook library, in-browser reader, OPDS feed for e-readers ---
+  # Watches /data/books/ingest, auto-imports into /data/books/library.
+  calibre-web-automated:
+    image: crocodilestick/calibre-web-automated:latest
+    container_name: calibre-web-automated
+    profiles: ["optional", "books"]
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-America/New_York}
+    volumes:
+      - ${CONFIG_ROOT:-/opt/mediastack/config}/cwa:/config
+      - ${DATA_ROOT:-/media/storage/data}/books/ingest:/cwa-book-ingest
+      - ${DATA_ROOT:-/media/storage/data}/books/library:/calibre-library
+    ports:
+      - 8083:8083
+    restart: unless-stopped
+
+  # ---- Audiobooks + podcasts (great for JP listening immersion) ----
+  audiobookshelf:
+    image: ghcr.io/advplyr/audiobookshelf:latest
+    container_name: audiobookshelf
+    profiles: ["optional", "books"]
+    environment:
+      - TZ=${TZ:-America/New_York}
+    volumes:
+      - ${CONFIG_ROOT:-/opt/mediastack/config}/audiobookshelf:/config
+      - ${CONFIG_ROOT:-/opt/mediastack/config}/audiobookshelf-metadata:/metadata
+      - ${DATA_ROOT:-/media/storage/data}/audiobooks:/audiobooks
+    ports:
+      - 13378:80
+    restart: unless-stopped
+
+  # ================================================================
+  #  MANGA — Phase 6 (Suwayomi acquisition + Kavita reader)
+  # ================================================================
+
+  # ---- Suwayomi-Server: "Sonarr for manga" -----------------------
+  # Self-hosted Tachiyomi. Uses the Tachiyomi extension catalog to
+  # monitor manga series and auto-download new chapters as CBZ files.
+  # Drops chapters into /data/manga/<Series>/Chapter N.cbz so Kavita
+  # picks them up.
+  # No VPN needed — Suwayomi scrapes reader sites, not torrents.
+  suwayomi:
+    image: ghcr.io/suwayomi/tachidesk:latest
+    container_name: suwayomi
+    profiles: ["optional", "manga"]
+    environment:
+      - TZ=${TZ:-America/New_York}
+      - DOWNLOAD_AS_CBZ=true
+    volumes:
+      - ${CONFIG_ROOT:-/opt/mediastack/config}/suwayomi:/home/suwayomi/.local/share/Tachidesk
+      - ${DATA_ROOT:-/media/storage/data}/manga:/manga
+    ports:
+      - 4567:4567
+    restart: unless-stopped
+
+  # ---- Kavita: manga + comics reader / library --------------------
+  # Watches /data/manga for new chapters Suwayomi drops, serves a
+  # web reader optimized for sequential art (right-to-left, double-page,
+  # page-turn animations). Also has OPDS for offline reading on tablets.
+  kavita:
+    image: jvmilazz0/kavita:latest
+    container_name: kavita
+    profiles: ["optional", "manga"]
+    environment:
+      - TZ=${TZ:-America/New_York}
+    volumes:
+      - ${CONFIG_ROOT:-/opt/mediastack/config}/kavita:/kavita/config
+      - ${DATA_ROOT:-/media/storage/data}/manga:/manga
+    ports:
+      - 5000:5000
+    restart: unless-stopped
+
+  # ================================================================
+  #  POLISH LAYER — Phase 7 (Caddy reverse proxy + Homepage dashboard)
+  # ================================================================
+
+  # ---- Caddy: front door for the household -----------------------
+  # Path-based reverse proxy on port 80 so family bookmarks ONE URL
+  # (the host's LAN IP) and navigates from the Homepage dashboard.
+  # Admin tools (Sonarr/Radarr/etc.) intentionally NOT proxied — they
+  # remain on their raw ports, accessible from the operator's machine
+  # only, so household members can't accidentally break configurations.
+  caddy:
+    image: caddy:latest
+    container_name: caddy
+    profiles: ["optional", "polish"]
+    ports:
+      - "80:80"
+    volumes:
+      - ${CONFIG_ROOT:-/opt/mediastack/config}/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ${CONFIG_ROOT:-/opt/mediastack/config}/caddy/data:/data
+      - ${CONFIG_ROOT:-/opt/mediastack/config}/caddy/config:/config
+    restart: unless-stopped
+
+  # ---- Homepage: status dashboard for the whole stack ------------
+  # The single bookmark family uses. Shows app cards with up/down
+  # status + live widgets (current download speed, queue counts, etc.)
+  # for each *arr / qBit / Jellyfin. Reads each app's API via keys
+  # piped through HOMEPAGE_VAR_* env vars from .env.
+  homepage:
+    image: ghcr.io/gethomepage/homepage:latest
+    container_name: homepage
+    profiles: ["optional", "polish"]
+    # Explicitly run as node user (1000:1000) so group_add applies to
+    # the running process. Without this, the image starts as root and
+    # drops to node internally, losing the supplementary group.
+    user: "${PUID:-1000}:${PGID:-1000}"
+    # DOCKER_GID is the docker group on the target host; used only for optional Homepage status.
+    # access to the docker socket for container-status indicators.
+    group_add:
+      - "${DOCKER_GID:-999}"
+    environment:
+      - TZ=${TZ:-America/New_York}
+      # Required in homepage v0.10+ for security — the host header
+      # allowlist for the dashboard's reverse-proxy-aware mode.
+      - HOMEPAGE_ALLOWED_HOSTS=${LAN_IP:-192.168.1.10},localhost,homepage,caddy
+      # API keys piped through for widget data (read from .env)
+      - HOMEPAGE_VAR_SONARR_KEY=${SONARR_APIKEY}
+      - HOMEPAGE_VAR_RADARR_KEY=${RADARR_APIKEY}
+      - HOMEPAGE_VAR_PROWLARR_KEY=${PROWLARR_APIKEY}
+      - HOMEPAGE_VAR_QBIT_USER=${QBIT_USER}
+      - HOMEPAGE_VAR_QBIT_PASS=${QBIT_PASS}
+      - HOMEPAGE_VAR_JELLYFIN_KEY=${JELLYFIN_APIKEY}
+    volumes:
+      - ${CONFIG_ROOT:-/opt/mediastack/config}/homepage:/app/config
+      # Read-only docker socket so Homepage can show container status.
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+  # ================================================================
+  #  OBSERVABILITY LAYER — Phase 8 (self-healing + alerts + stats)
+  # ================================================================
+  #  All admin-only — NOT proxied through Caddy, reached on raw ports
+  #  from the operator machine (same rule as the *arrs). Family never
+  #  needs these. UFW already scopes LAN access to 192.168.1.0/24.
+  # ================================================================
+
+  # ---- ntfy: self-hosted push notifications ----------------------
+  # The alert bus for the whole stack. Other containers POST to
+  # http://ntfy:2586/<topic>; you subscribe from the ntfy phone app
+  # (or browser) at http://${LAN_IP:-192.168.1.10}:2586. No auth — LAN-only,
+  # matches the no-SSO trust model. Uptime-Kuma, Diun, and the
+  # port-sync script all publish here.
+  ntfy:
+    image: binwiederhier/ntfy:latest
+    container_name: ntfy
+    profiles: ["optional", "observability"]
+    command: serve
+    environment:
+      - TZ=${TZ:-America/New_York}
+      - NTFY_BASE_URL=http://${LAN_IP:-192.168.1.10}:2586
+      - NTFY_LISTEN_HTTP=:2586
+      - NTFY_BEHIND_PROXY=false
+      - NTFY_CACHE_FILE=/var/cache/ntfy/cache.db
+      - NTFY_ATTACHMENT_CACHE_DIR=/var/cache/ntfy/attachments
+    volumes:
+      - ${CONFIG_ROOT:-/opt/mediastack/config}/ntfy:/var/cache/ntfy
+    ports:
+      - 2586:2586
+    restart: unless-stopped
+
+  # ---- Cleanuparr: kills stalled / dead / stuck downloads --------
+  # DISABLED BY DEFAULT. Behind the `cleanup` profile and must be enabled
+  # explicitly. Cleanuparr can permanently remove torrents and trigger *arr
+  # blocklists; misconfigured thresholds will delete slow-but-alive swarms.
+  # Before flipping the profile on:
+  #   1. Verify config backups + a restore rehearsal first.
+  #   2. In the Cleanuparr UI, enable "Dry Run" / "Test Mode" on every
+  #      module BEFORE saving, watch the report-only output for at least
+  #      one week, then flip dry-run off one module at a time.
+  #   3. Leave the **Download Cleaner** module OFF — ratio/seed-time
+  #      cleanup is qbitmanage's job (running both double-manages seeding
+  #      and risks deleting torrents inside required private-tracker
+  #      seed-time windows). See docs/legacy/MAINTENANCE.md §Cleanuparr.
+  #   4. Start Queue Cleaner with conservative strikes (3+) so a slow but
+  #      alive swarm gets grace before removal.
+  # Complements qbitmanage (which manages torrents that downloaded
+  # FINE and are now seeding). Cleanuparr watches the qBit queue +
+  # Sonarr/Radarr download lists and removes torrents that never
+  # made progress (stalled, dead, metadata-stuck), then tells the
+  # *arr to grab an alternative. Configure connections in the UI:
+  #   qBittorrent → host gluetun, port 8080 (the §8 namespace rule)
+  #   Sonarr      → http://sonarr:8989   (API key from .env)
+  #   Radarr      → http://radarr:7878   (API key from .env)
+  cleanuparr:
+    image: ghcr.io/cleanuparr/cleanuparr:latest
+    container_name: cleanuparr
+    profiles: ["cleanup"]
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - UMASK=022
+      - TZ=${TZ:-America/New_York}
+      - PORT=11011
+    volumes:
+      - ${CONFIG_ROOT:-/opt/mediastack/config}/cleanuparr:/config
+    ports:
+      - 11011:11011
+    restart: unless-stopped
+
+  # ---- Huntarr: SUPERSEDED — use Cleanuparr's built-in "Seeker" ----
+  # Not needed. Cleanuparr (v2.9+) ships a Seeker module that does exactly
+  # what Huntarr did (missing-item + cutoff-unmet upgrade search) — enable
+  # it in the Cleanuparr UI instead. Standalone Huntarr was also unsafe:
+  # its upstream (plexguide/Huntarr.io) was archived after the maintainer
+  # went "scorched earth" over disclosed SECURITY VULNERABILITIES and the
+  # `huntarr/huntarr` image was pulled. Block kept commented as a
+  # historical marker only.
+  # huntarr:
+  #   image: <VET-A-FORK-FIRST>
+  #   container_name: huntarr
+  #   environment:
+  #     - TZ=${TZ:-America/New_York}
+  #   volumes:
+  #     - ${CONFIG_ROOT:-/opt/mediastack/config}/huntarr:/config
+  #   ports:
+  #     - 9705:9705
+  #   restart: unless-stopped
+
+  # ---- Jellystat: viewing statistics for Jellyfin ----------------
+  # Tautulli-for-Jellyfin — who watched what, when, how much. Needs
+  # its own Postgres. IDLE until you create a Jellyfin API key
+  # (Dashboard → API Keys → +), put it in .env as JELLYFIN_APIKEY,
+  # then enter the server URL (http://jellyfin:8096) + that key in
+  # the Jellystat setup wizard. That same key lights up the Homepage
+  # Jellyfin widget too.
+  jellystat-db:
+    image: postgres:16-alpine
+    container_name: jellystat-db
+    profiles: ["optional", "observability"]
+    environment:
+      - POSTGRES_USER=jellystat
+      - POSTGRES_PASSWORD=${JELLYSTAT_DB_PASSWORD}
+      - POSTGRES_DB=jfstat
+      - TZ=${TZ:-America/New_York}
+    volumes:
+      - ${CONFIG_ROOT:-/opt/mediastack/config}/jellystat-db:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  jellystat:
+    image: cyfershepard/jellystat:latest
+    container_name: jellystat
+    profiles: ["optional", "observability"]
+    depends_on:
+      - jellystat-db
+    environment:
+      - POSTGRES_USER=jellystat
+      - POSTGRES_PASSWORD=${JELLYSTAT_DB_PASSWORD}
+      - POSTGRES_IP=jellystat-db
+      - POSTGRES_PORT=5432
+      - JWT_SECRET=${JELLYSTAT_JWT_SECRET}
+      - TZ=${TZ:-America/New_York}
+    volumes:
+      - ${CONFIG_ROOT:-/opt/mediastack/config}/jellystat:/app/backend/backup-data
+    ports:
+      # Host 3010 — homepage already owns host 3000.
+      - 3010:3000
+    restart: unless-stopped
+
+  # ---- Uptime-Kuma: service health dashboard + alerting ----------
+  # Pings every service and pages you (via ntfy) when one goes down.
+  # Homepage shows *links*; Uptime-Kuma shows *health + history +
+  # alerts*. In its UI, add an ntfy notification pointing at
+  # http://ntfy:2586 with your topic, then add a monitor per service.
+  # This is the central "something broke" alarm for the whole stack.
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    container_name: uptime-kuma
+    profiles: ["optional", "observability"]
+    volumes:
+      - ${CONFIG_ROOT:-/opt/mediastack/config}/uptime-kuma:/app/data
+    ports:
+      - 3001:3001
+    restart: unless-stopped
+
+  # ---- Diun: "a container image update is available" pings -------
+  # Notify-ONLY by design — it does NOT auto-update (that would undo
+  # update.sh's gluetun-ID-aware recreate of qbit/lazylibrarian).
+  # Diun watches every running container and pings ntfy when a newer
+  # image is published; you then run update.sh deliberately.
+  diun:
+    image: crazymax/diun:latest
+    container_name: diun
+    profiles: ["optional", "observability"]
+    command: serve
+    environment:
+      - TZ=${TZ:-America/New_York}
+      - LOG_LEVEL=info
+      # Watch on a schedule; check every 6h. Host isn't on at 3am, so
+      # avoid overnight-only cron (it won't catch up missed runs).
+      - DIUN_WATCH_SCHEDULE=0 */6 * * *
+      - DIUN_WATCH_JITTER=30s
+      - DIUN_PROVIDERS_DOCKER=true
+      # Only watch containers we opt in via the diun.enable label, OR
+      # set WATCHBYDEFAULT=true to watch all. We watch all here.
+      - DIUN_PROVIDERS_DOCKER_WATCHBYDEFAULT=true
+      # Notify through the self-hosted ntfy bus.
+      - DIUN_NOTIF_NTFY_ENDPOINT=http://ntfy:2586
+      - DIUN_NOTIF_NTFY_TOPIC=${NTFY_TOPIC}
+      - DIUN_NOTIF_NTFY_PRIORITY=3
+      - DIUN_NOTIF_NTFY_TAGS=package
+    volumes:
+      - ${CONFIG_ROOT:-/opt/mediastack/config}/diun:/data
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    restart: unless-stopped

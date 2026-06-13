@@ -1,0 +1,8 @@
+# Secrets — never commit
+.env
+
+# Runtime state: SQLite DBs, app caches, fetched metadata, API keys baked into configs
+config/
+
+# Media payload — far too large for git
+data/

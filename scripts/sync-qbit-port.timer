@@ -1,0 +1,13 @@
+[Unit]
+Description=Mediastack: periodic qBit/gluetun port sync (every 5 minutes)
+
+[Timer]
+# Run 30 seconds after boot (gives gluetun time to negotiate the port),
+# then every 5 minutes thereafter.
+OnBootSec=30s
+OnUnitActiveSec=5min
+Persistent=true
+Unit=sync-qbit-port.service
+
+[Install]
+WantedBy=timers.target
