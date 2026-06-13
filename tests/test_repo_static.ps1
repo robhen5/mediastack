@@ -8,6 +8,8 @@ $safetyDoc = Join-Path $repoRoot "docs/SAFETY.md"
 $backupScript = Join-Path $repoRoot "scripts/backup-config.sh"
 $restoreScript = Join-Path $repoRoot "scripts/restore-config-test.sh"
 $hardlinkScript = Join-Path $repoRoot "scripts/test-hardlinks.sh"
+$homepageInstallScript = Join-Path $repoRoot "scripts/install-homepage-config.sh"
+$homepageTemplateDir = Join-Path $repoRoot "config-templates/homepage"
 
 $composeText = Get-Content -Raw -Path $composePath
 $scriptText = Get-Content -Raw -Path $updateScript
@@ -49,7 +51,7 @@ Assert-Contains `
 
 Assert-Contains `
     -Text $scriptText `
-    -Pattern 'UPDATE_PROFILES="\$\{UPDATE_PROFILES:-first-deploy monitoring\}"' `
+    -Pattern 'UPDATE_PROFILES="\$\{UPDATE_PROFILES:-first-deploy monitoring dashboard\}"' `
     -Message "scripts/update.sh must select safe default compose profiles."
 
 Assert-Contains `
@@ -146,6 +148,28 @@ if (($monitoringActualSorted -join ",") -ne ($monitoringExpected -join ",")) {
     throw "monitoring profile mismatch. Expected: $($monitoringExpected -join ', '); got: $($monitoringActualSorted -join ', ')"
 }
 
+$dashboardExpected = @(
+    "homepage"
+) | Sort-Object
+
+$currentService = $null
+$dashboardActual = New-Object System.Collections.Generic.List[string]
+foreach ($line in (Get-Content -Path $composePath)) {
+    if ($line -match '^  ([A-Za-z0-9_-]+):\s*$') {
+        $currentService = $Matches[1]
+        continue
+    }
+
+    if ($currentService -and $line -match 'profiles:\s+\[.*"dashboard".*\]') {
+        $dashboardActual.Add($currentService)
+    }
+}
+
+$dashboardActualSorted = $dashboardActual | Sort-Object
+if (($dashboardActualSorted -join ",") -ne ($dashboardExpected -join ",")) {
+    throw "dashboard profile mismatch. Expected: $($dashboardExpected -join ', '); got: $($dashboardActualSorted -join ', ')"
+}
+
 $scriptFiles = Get-ChildItem -Path (Join-Path $repoRoot "scripts") -Filter "*.sh"
 foreach ($file in $scriptFiles) {
     $text = Get-Content -Raw -Path $file.FullName
@@ -174,6 +198,7 @@ foreach ($name in @(
     "SONARR_APIKEY",
     "RADARR_APIKEY",
     "PROWLARR_APIKEY",
+    "BAZARR_APIKEY",
     "JELLYFIN_APIKEY",
     "JELLYSTAT_DB_PASSWORD",
     "JELLYSTAT_JWT_SECRET",
@@ -224,11 +249,29 @@ Assert-Contains `
     -Message "Unpackerr must default UN_RADARR_0_DELETE_DELAY to UNPACKERR_DELETE_DELAY (9999h)."
 
 # Required safety scripts and the SAFETY.md doc must exist.
-foreach ($p in @($safetyDoc, $backupScript, $restoreScript, $hardlinkScript)) {
+foreach ($p in @($safetyDoc, $backupScript, $restoreScript, $hardlinkScript, $homepageInstallScript)) {
     if (-not (Test-Path -LiteralPath $p)) {
         throw "Missing required safety artifact: $p"
     }
 }
+
+foreach ($name in @("settings.yaml", "services.yaml", "widgets.yaml", "bookmarks.yaml", "docker.yaml")) {
+    $path = Join-Path $homepageTemplateDir $name
+    if (-not (Test-Path -LiteralPath $path)) {
+        throw "Missing Homepage template: $path"
+    }
+}
+
+$homepageServices = Get-Content -Raw -Path (Join-Path $homepageTemplateDir "services.yaml")
+Assert-Contains `
+    -Text $homepageServices `
+    -Pattern 'url:\s+http://gluetun:8080' `
+    -Message "Homepage qBittorrent widget must use gluetun:8080 because qBittorrent shares Gluetun's network namespace."
+
+Assert-Contains `
+    -Text $composeText `
+    -Pattern 'HOMEPAGE_VAR_BAZARR_KEY=\$\{BAZARR_APIKEY\}' `
+    -Message "Homepage compose env must expose BAZARR_APIKEY for the Bazarr widget."
 
 # The safety scripts themselves must not contain `rm -rf` (already checked by
 # the existing rm-rf rule for scripts/*.sh, but the doc-side rule is here).

@@ -1,0 +1,20 @@
+---
+title: Mediastack
+theme: dark
+color: slate
+target: _self
+hideVersion: true
+statusStyle: dot
+layout:
+  Media:
+    style: row
+    columns: 3
+  Automation:
+    style: row
+    columns: 4
+  Downloads:
+    style: row
+    columns: 2
+  Monitoring:
+    style: row
+    columns: 2

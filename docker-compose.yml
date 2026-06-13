@@ -485,7 +485,7 @@ services:
   homepage:
     image: ghcr.io/gethomepage/homepage:latest
     container_name: homepage
-    profiles: ["optional", "polish"]
+    profiles: ["optional", "polish", "dashboard"]
     # Explicitly run as node user (1000:1000) so group_add applies to
     # the running process. Without this, the image starts as root and
     # drops to node internally, losing the supplementary group.
@@ -498,11 +498,13 @@ services:
       - TZ=${TZ:-America/New_York}
       # Required in homepage v0.10+ for security — the host header
       # allowlist for the dashboard's reverse-proxy-aware mode.
-      - HOMEPAGE_ALLOWED_HOSTS=${LAN_IP:-192.168.1.10},localhost,homepage,caddy
+      - HOMEPAGE_ALLOWED_HOSTS=${LAN_IP:-192.168.1.10},${LAN_IP:-192.168.1.10}:3000,localhost,localhost:3000,homepage,caddy
+      - HOMEPAGE_VAR_LAN_IP=${LAN_IP:-192.168.1.10}
       # API keys piped through for widget data (read from .env)
       - HOMEPAGE_VAR_SONARR_KEY=${SONARR_APIKEY}
       - HOMEPAGE_VAR_RADARR_KEY=${RADARR_APIKEY}
       - HOMEPAGE_VAR_PROWLARR_KEY=${PROWLARR_APIKEY}
+      - HOMEPAGE_VAR_BAZARR_KEY=${BAZARR_APIKEY}
       - HOMEPAGE_VAR_QBIT_USER=${QBIT_USER}
       - HOMEPAGE_VAR_QBIT_PASS=${QBIT_PASS}
       - HOMEPAGE_VAR_JELLYFIN_KEY=${JELLYFIN_APIKEY}

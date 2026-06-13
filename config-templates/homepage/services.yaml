@@ -1,0 +1,95 @@
+---
+- Media:
+    - Jellyfin:
+        href: "http://{{HOMEPAGE_VAR_LAN_IP}}:8096"
+        description: Movies and TV playback
+        icon: jellyfin
+        server: local-docker
+        container: jellyfin
+        widget:
+          type: jellyfin
+          url: http://jellyfin:8096
+          key: "{{HOMEPAGE_VAR_JELLYFIN_KEY}}"
+          enableBlocks: true
+          enableNowPlaying: true
+    - Jellyseerr:
+        href: "http://{{HOMEPAGE_VAR_LAN_IP}}:5055"
+        description: Request movies and shows
+        icon: jellyseerr
+        server: local-docker
+        container: jellyseerr
+
+- Automation:
+    - Sonarr:
+        href: "http://{{HOMEPAGE_VAR_LAN_IP}}:8989"
+        description: TV automation
+        icon: sonarr
+        server: local-docker
+        container: sonarr
+        widget:
+          type: sonarr
+          url: http://sonarr:8989
+          key: "{{HOMEPAGE_VAR_SONARR_KEY}}"
+    - Radarr:
+        href: "http://{{HOMEPAGE_VAR_LAN_IP}}:7878"
+        description: Movie automation
+        icon: radarr
+        server: local-docker
+        container: radarr
+        widget:
+          type: radarr
+          url: http://radarr:7878
+          key: "{{HOMEPAGE_VAR_RADARR_KEY}}"
+    - Prowlarr:
+        href: "http://{{HOMEPAGE_VAR_LAN_IP}}:9696"
+        description: Indexer manager
+        icon: prowlarr
+        server: local-docker
+        container: prowlarr
+        widget:
+          type: prowlarr
+          url: http://prowlarr:9696
+          key: "{{HOMEPAGE_VAR_PROWLARR_KEY}}"
+    - Bazarr:
+        href: "http://{{HOMEPAGE_VAR_LAN_IP}}:6767"
+        description: Subtitle automation
+        icon: bazarr
+        server: local-docker
+        container: bazarr
+        widget:
+          type: bazarr
+          url: http://bazarr:6767
+          key: "{{HOMEPAGE_VAR_BAZARR_KEY}}"
+
+- Downloads:
+    - qBittorrent:
+        href: "http://{{HOMEPAGE_VAR_LAN_IP}}:8081"
+        description: Torrent client through Gluetun
+        icon: qbittorrent
+        server: local-docker
+        container: qbittorrent
+        widget:
+          type: qbittorrent
+          url: http://gluetun:8080
+          username: "{{HOMEPAGE_VAR_QBIT_USER}}"
+          password: "{{HOMEPAGE_VAR_QBIT_PASS}}"
+    - Gluetun:
+        href: "http://{{HOMEPAGE_VAR_LAN_IP}}:8081"
+        description: VPN gateway for qBittorrent
+        icon: gluetun
+        server: local-docker
+        container: gluetun
+
+- Monitoring:
+    - Uptime Kuma:
+        href: "http://{{HOMEPAGE_VAR_LAN_IP}}:3001"
+        description: Service health and alerts
+        icon: uptime-kuma
+        server: local-docker
+        container: uptime-kuma
+    - ntfy:
+        href: "http://{{HOMEPAGE_VAR_LAN_IP}}:2586"
+        description: Local alert bus
+        icon: ntfy
+        server: local-docker
+        container: ntfy

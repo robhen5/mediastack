@@ -34,6 +34,7 @@ Read these first:
 - Compose paths, identity, timezone, LAN, and device group values are
   parameterized through `.env`.
 - Use `docker compose --profile first-deploy up -d` for the first safe launch.
+- Use the `dashboard` profile for Homepage without also enabling Caddy.
 - qbitmanage and Cleanuparr are behind the `cleanup` profile and must not be
   enabled casually.
 

@@ -168,6 +168,8 @@ Hardlink test (re-run after every storage layout change):
 Only after the first-deploy profile passes:
 
 - [ ] Add monitoring with `--profile monitoring` for ntfy and Uptime Kuma.
+- [ ] Add the dashboard with `scripts/install-homepage-config.sh`, then
+      `docker compose --profile dashboard --profile monitoring up -d homepage ntfy uptime-kuma`.
 - [ ] Add full observability with `--profile observability` only when you also
       want Jellystat and Diun.
 - [ ] Add optional services by profile, one category at a time.

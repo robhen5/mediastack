@@ -11,15 +11,15 @@
 # without changing containers or deleting old image layers.
 #
 # Profiles:
-#   UPDATE_PROFILES="first-deploy monitoring" ./scripts/update.sh
-# Defaults to the safe core stack plus monitoring. Add profiles explicitly when
-# you intentionally run optional services.
+#   UPDATE_PROFILES="first-deploy monitoring dashboard" ./scripts/update.sh
+# Defaults to the safe core stack, monitoring, and the read-only dashboard.
+# Add profiles explicitly when you intentionally run optional services.
 
 set -euo pipefail
 
 MEDIASTACK_DIR="${MEDIASTACK_DIR:-${MEDIASTACK_ROOT:-/opt/mediastack}}"
 DRY_RUN="${DRY_RUN:-0}"
-UPDATE_PROFILES="${UPDATE_PROFILES:-first-deploy monitoring}"
+UPDATE_PROFILES="${UPDATE_PROFILES:-first-deploy monitoring dashboard}"
 cd "${MEDIASTACK_DIR}"
 
 is_dry_run() {

@@ -103,6 +103,7 @@ services.
 | `cleanup` | qbitmanage and Cleanuparr; disabled by default |
 | `books` | LazyLibrarian, Calibre-Web Automated, Audiobookshelf |
 | `manga` | Suwayomi and Kavita |
+| `dashboard` | Homepage only |
 | `polish` | Caddy and Homepage |
 | `monitoring` | ntfy and Uptime Kuma only |
 | `observability` | Full observability bundle: ntfy, Uptime-Kuma, Jellystat, Diun |
@@ -112,6 +113,45 @@ seed-time rules, and dry-run/report-only settings are verified. The compose
 file ships qbit_manage with `QBT_DRY_RUN=true` so that even when the
 `cleanup` profile is enabled, the tool starts in report-only mode. See
 `docs/SAFETY.md` §4 "Warnings before enabling deletion automation."
+
+## Dashboard
+
+Homepage is the lightweight stack dashboard. It is isolated behind the
+`dashboard` profile so you can start it without also starting Caddy:
+
+```bash
+DRY_RUN=1 ./scripts/install-homepage-config.sh
+./scripts/install-homepage-config.sh
+docker compose --profile dashboard --profile monitoring up -d homepage ntfy uptime-kuma
+```
+
+Open it at:
+
+```text
+http://$LAN_IP:3000
+```
+
+The checked-in templates live in `config-templates/homepage/` and install into
+`CONFIG_ROOT/homepage`. The installer will not overwrite existing dashboard
+files unless you set `FORCE=1`; when forced, it creates `*.bak-<timestamp>`
+backups first.
+
+For widgets, set API keys in `.env`:
+
+```text
+SONARR_APIKEY=
+RADARR_APIKEY=
+PROWLARR_APIKEY=
+BAZARR_APIKEY=
+JELLYFIN_APIKEY=
+QBIT_USER=
+QBIT_PASS=
+LAN_IP=
+```
+
+qBittorrent's widget intentionally uses `http://gluetun:8080`, not
+`http://qbittorrent:8080`, because qBittorrent shares Gluetun's network
+namespace.
 
 ## Intel Quick Sync
 
@@ -184,8 +224,12 @@ tar -xzf "$BACKUP_ROOT/config-test-$(date +%Y%m%d).tar.gz" -C /tmp/mediastack-re
 ## Scripts
 
 - `scripts/update.sh` supports `DRY_RUN=1`, defaults to
-  `first-deploy monitoring`, and wraps `docker image prune -f` behind that
-  dry-run runner.
+  `first-deploy monitoring dashboard`, and wraps `docker image prune -f`
+  behind that dry-run runner.
+- `scripts/install-homepage-config.sh` installs the checked-in Homepage
+  templates from `config-templates/homepage/` into `CONFIG_ROOT/homepage`.
+  It refuses to overwrite existing dashboard files unless `FORCE=1` is set,
+  and supports `DRY_RUN=1`.
 - `scripts/sync-qbit-port.sh` updates qBittorrent's listen port to match the
   Gluetun/ProtonVPN forwarded port. It does not move, rename, or delete files.
 - `scripts/backup-config.sh` archives `.env`, `config/`, `docker-compose.yml`,
