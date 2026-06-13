@@ -1,0 +1,12 @@
+[Unit]
+Description=Mediastack: start monthly SMART long disk self-test
+Documentation=file:///opt/mediastack/README.md
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+WorkingDirectory=/opt/mediastack
+Environment=MEDIASTACK_DIR=/opt/mediastack
+EnvironmentFile=-/opt/mediastack/.env
+ExecStart=/opt/mediastack/scripts/start-disk-long-test.sh

@@ -203,6 +203,15 @@ stat /media/storage/data/torrents/hardlink-test /media/storage/data/media/hardli
 rm /media/storage/data/torrents/hardlink-test /media/storage/data/media/hardlink-test
 ```
 
+SMART disk check:
+
+```bash
+sudo apt install smartmontools
+ls -l /dev/disk/by-id/
+sudo smartctl -a /dev/disk/by-id/ata-ST28000NM001C_replace_with_real_serial
+sudo /opt/mediastack/scripts/check-disk-health.sh
+```
+
 VPN checks:
 
 ```bash
@@ -242,6 +251,14 @@ tar -xzf "$BACKUP_ROOT/config-test-$(date +%Y%m%d).tar.gz" -C /tmp/mediastack-re
 - `scripts/test-hardlinks.sh` proves that `torrents/` and `media/` share one
   filesystem and that hardlinks do not duplicate bytes. Run after any storage
   layout change.
+- `scripts/check-disk-health.sh` runs read-only SMART health checks for
+  `SMART_DEVICES` and can alert through ntfy.
+- `scripts/check-disk-health.service` / `.timer` run the SMART health check
+  daily.
+- `scripts/start-disk-long-test.sh` starts non-destructive SMART long
+  self-tests.
+- `scripts/start-disk-long-test.service` / `.timer` start a monthly long test
+  on the first Sunday.
 
 ## Documentation
 
@@ -250,5 +267,6 @@ tar -xzf "$BACKUP_ROOT/config-test-$(date +%Y%m%d).tar.gz" -C /tmp/mediastack-re
   before first deploy**)
 - `docs/hardware-plan.md`: Lenovo, Exos, TerraMaster, Ubuntu, and Unraid plan
 - `docs/deployment-checklist.md`: target-host validation and deployment steps
+- `docs/disk-health.md`: SMART checks, ntfy disk alerts, and monthly long tests
 - `docs/risk-register.md`: data-loss and scaling risks
 - `docs/legacy/`: older detailed setup/maintenance notes retained for reference

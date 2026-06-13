@@ -24,7 +24,7 @@ for the Lenovo plus 28TB Exos media server plan.
 | P2 | Library scan I/O saturation | Tens of thousands of files on HDD/USB DAS | Slow playback/imports during scans | Schedule scans, avoid full refreshes, keep metadata on SSD |
 | P2 | Bazarr scan cost | Bazarr can scan large TV libraries | CPU/I/O spikes and slow subtitle queue | Tune schedules and language profiles |
 | P2 | qBittorrent memory growth | Many torrents and WebUI/API calls | 12GB RAM may become tight | Limit active torrents, monitor memory, consider RAM upgrade |
-| P2 | USB DAS disconnects | TerraMaster D9-320 planned over USB | Missing/stale mounts, interrupted writes | Use stable cabling, UPS, mount checks, SMART monitoring, and cautious automation |
+| P2 | USB DAS disconnects | TerraMaster D9-320 planned over USB | Missing/stale mounts, interrupted writes | Use stable cabling, UPS, mount checks, SMART monitoring (`docs/disk-health.md`), and cautious automation |
 | P2 | No health checks in compose | Restart policies exist but health checks mostly absent | Failures are less visible to Docker | Add health checks or Uptime-Kuma monitors |
 | P2 | Logs grow unchecked | No central log rotation config in repo | Disk pressure over time | Add Docker logging options or host logrotate guidance |
 | P3 | Plex not implemented | Repo is Jellyfin-centric | Plex clients unavailable | Add Plex later as a separate service sharing media read-only |
@@ -54,5 +54,6 @@ graduation criteria — lives in `docs/SAFETY.md`. Summary:
 2. Keep downloads and media hardlink-compatible.
 3. Monitor disk fullness at 70, 80, and 90 percent thresholds.
 4. Add Uptime-Kuma and ntfy early.
-5. Add SMART/disk monitoring for the Exos and future DAS disks.
+5. Add SMART/disk monitoring for the Exos and future DAS disks via
+   `docs/disk-health.md`.
 6. Add RAM if qBittorrent plus Jellyfin plus indexers push the host into swap.

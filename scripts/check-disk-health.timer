@@ -1,0 +1,11 @@
+[Unit]
+Description=Mediastack: run SMART disk health check daily
+
+[Timer]
+OnCalendar=*-*-* 09:00:00
+RandomizedDelaySec=20min
+Persistent=true
+Unit=check-disk-health.service
+
+[Install]
+WantedBy=timers.target

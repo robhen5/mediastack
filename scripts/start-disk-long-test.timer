@@ -1,0 +1,13 @@
+[Unit]
+Description=Mediastack: start monthly SMART long disk self-test
+
+[Timer]
+# First Sunday of each month, late morning. Long tests can take many hours on
+# 28TB drives, so schedule this when heavy downloads/playback are unlikely.
+OnCalendar=Sun *-*-1..7 11:30:00
+RandomizedDelaySec=30min
+Persistent=true
+Unit=start-disk-long-test.service
+
+[Install]
+WantedBy=timers.target

@@ -76,6 +76,8 @@ Risks and requirements to plan around:
   Unraid shares with stable container paths.
 - Test how the host behaves if the DAS is disconnected and reconnected.
 - Add SMART monitoring after confirming the enclosure exposes disk health data.
+- This repo includes host-side SMART scripts and systemd timers in `scripts/`;
+  see `docs/disk-health.md`.
 - Keep `torrents/` and `media/` under one filesystem or pool when hardlinking.
   If downloads and media land on different shares/filesystems, Sonarr/Radarr
   will copy instead of hardlinking.

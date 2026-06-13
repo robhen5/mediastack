@@ -23,7 +23,8 @@ Read these first:
 3. `docs/hardware-plan.md`
 4. `docs/risk-register.md`
 5. `docs/deployment-checklist.md`
-6. Existing legacy docs only after that: `docs/legacy/SETUP.md`,
+6. `docs/disk-health.md`
+7. Existing legacy docs only after that: `docs/legacy/SETUP.md`,
    `docs/legacy/MAINTENANCE.md`
 
 ## Current State
@@ -76,6 +77,8 @@ For deployment work, verify:
 - Config backup and restore rehearsal
 - Weekly `backup-config.timer` is installed only after a manual backup succeeds
   and at least one backup tarball is copied off-host.
+- Disk health work should use stable `/dev/disk/by-id` paths and host-side
+  smartmontools. Do not use `/dev/sdX` in docs or scripts except as a warning.
 
 ## Hardware Guidance
 

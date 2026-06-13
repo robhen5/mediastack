@@ -163,6 +163,17 @@ Hardlink test (re-run after every storage layout change):
 ./scripts/test-hardlinks.sh
 ```
 
+Disk health monitoring:
+
+```bash
+sudo apt install smartmontools
+ls -l /dev/disk/by-id/
+sudo smartctl -a /dev/disk/by-id/ata-ST28000NM001C_replace_with_real_serial
+sudo /opt/mediastack/scripts/check-disk-health.sh
+```
+
+Then install the timers from `docs/disk-health.md`.
+
 Install weekly config backups after the first successful manual backup:
 
 ```bash

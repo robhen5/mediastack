@@ -8,6 +8,13 @@ $safetyDoc = Join-Path $repoRoot "docs/SAFETY.md"
 $backupScript = Join-Path $repoRoot "scripts/backup-config.sh"
 $backupService = Join-Path $repoRoot "scripts/backup-config.service"
 $backupTimer = Join-Path $repoRoot "scripts/backup-config.timer"
+$diskHealthDoc = Join-Path $repoRoot "docs/disk-health.md"
+$diskHealthScript = Join-Path $repoRoot "scripts/check-disk-health.sh"
+$diskHealthService = Join-Path $repoRoot "scripts/check-disk-health.service"
+$diskHealthTimer = Join-Path $repoRoot "scripts/check-disk-health.timer"
+$diskLongTestScript = Join-Path $repoRoot "scripts/start-disk-long-test.sh"
+$diskLongTestService = Join-Path $repoRoot "scripts/start-disk-long-test.service"
+$diskLongTestTimer = Join-Path $repoRoot "scripts/start-disk-long-test.timer"
 $restoreScript = Join-Path $repoRoot "scripts/restore-config-test.sh"
 $hardlinkScript = Join-Path $repoRoot "scripts/test-hardlinks.sh"
 $homepageInstallScript = Join-Path $repoRoot "scripts/install-homepage-config.sh"
@@ -205,6 +212,11 @@ foreach ($name in @(
     "JELLYSTAT_DB_PASSWORD",
     "JELLYSTAT_JWT_SECRET",
     "NTFY_TOPIC",
+    "SMART_DEVICES",
+    "SMARTCTL_OPTIONS",
+    "SMART_TEMP_WARN_C",
+    "SMART_NTFY_URL",
+    "SMART_NTFY_TOPIC",
     "QBT_DRY_RUN",
     "UNPACKERR_DELETE_DELAY"
 )) {
@@ -251,7 +263,22 @@ Assert-Contains `
     -Message "Unpackerr must default UN_RADARR_0_DELETE_DELAY to UNPACKERR_DELETE_DELAY (9999h)."
 
 # Required safety scripts and the SAFETY.md doc must exist.
-foreach ($p in @($safetyDoc, $backupScript, $backupService, $backupTimer, $restoreScript, $hardlinkScript, $homepageInstallScript)) {
+foreach ($p in @(
+    $safetyDoc,
+    $backupScript,
+    $backupService,
+    $backupTimer,
+    $diskHealthDoc,
+    $diskHealthScript,
+    $diskHealthService,
+    $diskHealthTimer,
+    $diskLongTestScript,
+    $diskLongTestService,
+    $diskLongTestTimer,
+    $restoreScript,
+    $hardlinkScript,
+    $homepageInstallScript
+)) {
     if (-not (Test-Path -LiteralPath $p)) {
         throw "Missing required safety artifact: $p"
     }
@@ -279,6 +306,64 @@ Assert-Contains `
     -Text $backupTimerText `
     -Pattern 'Persistent=true' `
     -Message "backup-config.timer must catch up missed runs after boot."
+
+$diskHealthText = Get-Content -Raw -Path $diskHealthScript
+$diskLongTestText = Get-Content -Raw -Path $diskLongTestScript
+$diskHealthServiceText = Get-Content -Raw -Path $diskHealthService
+$diskHealthTimerText = Get-Content -Raw -Path $diskHealthTimer
+$diskLongTestServiceText = Get-Content -Raw -Path $diskLongTestService
+$diskLongTestTimerText = Get-Content -Raw -Path $diskLongTestTimer
+$diskHealthDocText = Get-Content -Raw -Path $diskHealthDoc
+
+Assert-Contains `
+    -Text $diskHealthText `
+    -Pattern 'smartctl \$\{SMARTCTL_OPTIONS\} -H -A -l error -l selftest' `
+    -Message "check-disk-health.sh must use read-only smartctl health/log checks."
+
+Assert-Contains `
+    -Text $diskHealthText `
+    -Pattern 'SMART_NTFY_URL' `
+    -Message "check-disk-health.sh must support ntfy alerting."
+
+Assert-Contains `
+    -Text $diskLongTestText `
+    -Pattern 'smartctl \$\{SMARTCTL_OPTIONS\} -t long' `
+    -Message "start-disk-long-test.sh must start SMART long tests."
+
+Assert-Contains `
+    -Text $diskHealthServiceText `
+    -Pattern 'User=root' `
+    -Message "SMART health service should run as root for raw disk access."
+
+Assert-Contains `
+    -Text $diskHealthServiceText `
+    -Pattern 'EnvironmentFile=-/opt/mediastack/\.env' `
+    -Message "SMART health service must read .env for SMART_DEVICES and alert settings."
+
+Assert-Contains `
+    -Text $diskHealthTimerText `
+    -Pattern 'OnCalendar=\*-\*-\* 09:00:00' `
+    -Message "SMART health timer must run daily."
+
+Assert-Contains `
+    -Text $diskLongTestServiceText `
+    -Pattern 'User=root' `
+    -Message "SMART long-test service should run as root for raw disk access."
+
+Assert-Contains `
+    -Text $diskLongTestTimerText `
+    -Pattern 'OnCalendar=Sun \*-\*-1\.\.7 11:30:00' `
+    -Message "SMART long-test timer must run monthly on the first Sunday."
+
+Assert-Contains `
+    -Text $diskHealthDocText `
+    -Pattern '/dev/disk/by-id' `
+    -Message "disk-health docs must require stable /dev/disk/by-id paths."
+
+Assert-Contains `
+    -Text $diskHealthDocText `
+    -Pattern 'TerraMaster D9-320' `
+    -Message "disk-health docs must mention TerraMaster D9-320 SMART passthrough."
 
 foreach ($name in @("settings.yaml", "services.yaml", "widgets.yaml", "bookmarks.yaml", "docker.yaml")) {
     $path = Join-Path $homepageTemplateDir $name
