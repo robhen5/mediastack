@@ -9,11 +9,17 @@
 #   DRY_RUN=1 ./scripts/update.sh
 # Prints the docker commands that would run, including the image prune step,
 # without changing containers or deleting old image layers.
+#
+# Profiles:
+#   UPDATE_PROFILES="first-deploy observability" ./scripts/update.sh
+# Defaults to the safe core stack plus monitoring. Add profiles explicitly when
+# you intentionally run optional services.
 
 set -euo pipefail
 
 MEDIASTACK_DIR="${MEDIASTACK_DIR:-${MEDIASTACK_ROOT:-/opt/mediastack}}"
 DRY_RUN="${DRY_RUN:-0}"
+UPDATE_PROFILES="${UPDATE_PROFILES:-first-deploy observability}"
 cd "${MEDIASTACK_DIR}"
 
 is_dry_run() {
@@ -41,16 +47,34 @@ inspect_gluetun_id() {
   fi
 }
 
+compose() {
+  local args=(compose)
+  local profile
+  for profile in ${UPDATE_PROFILES}; do
+    args+=(--profile "${profile}")
+  done
+  args+=("$@")
+  run docker "${args[@]}"
+}
+
+container_exists() {
+  if is_dry_run; then
+    [[ "$1" == "qbittorrent" ]]
+  else
+    docker inspect "$1" >/dev/null 2>&1
+  fi
+}
+
 # Container IDs are stable as long as the container isn't recreated. Capture
 # gluetun's ID before the update so we can detect whether it got replaced.
 old_gluetun_id="$(inspect_gluetun_id)"
 
 echo "==> pulling latest images"
-run docker compose pull
+compose pull
 
 echo
 echo "==> applying updates"
-run docker compose up -d
+compose up -d
 
 new_gluetun_id="$(inspect_gluetun_id)"
 
@@ -59,9 +83,17 @@ if [[ "${old_gluetun_id}" != "${new_gluetun_id}" ]]; then
   echo "==> gluetun was recreated; reattaching dependents to new network namespace"
   # Every container with `network_mode: service:gluetun` must be recreated
   # because its namespace handle points to the OLD gluetun container ID.
-  # If you add more VPN-routed containers (e.g. private-tracker scrapers),
-  # add them here.
-  run docker compose up -d --force-recreate qbittorrent lazylibrarian
+  # If you add more VPN-routed containers, add them here. Each service is only
+  # recreated when its container already exists, so optional profiles stay off.
+  dependents=()
+  for service in qbittorrent lazylibrarian; do
+    if container_exists "${service}"; then
+      dependents+=("${service}")
+    fi
+  done
+  if (( ${#dependents[@]} )); then
+    compose up -d --force-recreate "${dependents[@]}"
+  fi
 fi
 
 echo

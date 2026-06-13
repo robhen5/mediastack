@@ -49,6 +49,16 @@ Assert-Contains `
 
 Assert-Contains `
     -Text $scriptText `
+    -Pattern 'UPDATE_PROFILES="\$\{UPDATE_PROFILES:-first-deploy observability\}"' `
+    -Message "scripts/update.sh must select safe default compose profiles."
+
+Assert-Contains `
+    -Text $scriptText `
+    -Pattern 'compose up -d' `
+    -Message "scripts/update.sh should apply updates through the profile-aware compose wrapper."
+
+Assert-Contains `
+    -Text $scriptText `
     -Pattern 'MEDIASTACK_DIR="\$\{MEDIASTACK_DIR:-\$\{MEDIASTACK_ROOT:-/opt/mediastack\}\}"' `
     -Message "scripts/update.sh should allow MEDIASTACK_DIR or MEDIASTACK_ROOT override."
 
