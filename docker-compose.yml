@@ -531,7 +531,7 @@ services:
   ntfy:
     image: binwiederhier/ntfy:latest
     container_name: ntfy
-    profiles: ["optional", "observability"]
+    profiles: ["optional", "observability", "monitoring"]
     command: serve
     environment:
       - TZ=${TZ:-America/New_York}
@@ -653,7 +653,7 @@ services:
   uptime-kuma:
     image: louislam/uptime-kuma:1
     container_name: uptime-kuma
-    profiles: ["optional", "observability"]
+    profiles: ["optional", "observability", "monitoring"]
     volumes:
       - ${CONFIG_ROOT:-/opt/mediastack/config}/uptime-kuma:/app/data
     ports:

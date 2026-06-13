@@ -167,7 +167,9 @@ Hardlink test (re-run after every storage layout change):
 
 Only after the first-deploy profile passes:
 
-- [ ] Add observability with `--profile observability`.
+- [ ] Add monitoring with `--profile monitoring` for ntfy and Uptime Kuma.
+- [ ] Add full observability with `--profile observability` only when you also
+      want Jellystat and Diun.
 - [ ] Add optional services by profile, one category at a time.
 - [ ] Keep qbitmanage and Cleanuparr disabled until cleanup rules are reviewed.
 - [ ] If enabling `cleanup`, start with report-only/dry-run behavior where the

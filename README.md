@@ -104,7 +104,8 @@ services.
 | `books` | LazyLibrarian, Calibre-Web Automated, Audiobookshelf |
 | `manga` | Suwayomi and Kavita |
 | `polish` | Caddy and Homepage |
-| `observability` | ntfy, Uptime-Kuma, Jellystat, Diun |
+| `monitoring` | ntfy and Uptime Kuma only |
+| `observability` | Full observability bundle: ntfy, Uptime-Kuma, Jellystat, Diun |
 
 Do not enable the `cleanup` profile until backups, hardlink behavior, tracker
 seed-time rules, and dry-run/report-only settings are verified. The compose
@@ -182,8 +183,9 @@ tar -xzf "$BACKUP_ROOT/config-test-$(date +%Y%m%d).tar.gz" -C /tmp/mediastack-re
 
 ## Scripts
 
-- `scripts/update.sh` supports `DRY_RUN=1` and wraps `docker image prune -f`
-  behind that dry-run runner.
+- `scripts/update.sh` supports `DRY_RUN=1`, defaults to
+  `first-deploy monitoring`, and wraps `docker image prune -f` behind that
+  dry-run runner.
 - `scripts/sync-qbit-port.sh` updates qBittorrent's listen port to match the
   Gluetun/ProtonVPN forwarded port. It does not move, rename, or delete files.
 - `scripts/backup-config.sh` archives `.env`, `config/`, `docker-compose.yml`,

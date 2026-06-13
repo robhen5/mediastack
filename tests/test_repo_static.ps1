@@ -49,7 +49,7 @@ Assert-Contains `
 
 Assert-Contains `
     -Text $scriptText `
-    -Pattern 'UPDATE_PROFILES="\$\{UPDATE_PROFILES:-first-deploy observability\}"' `
+    -Pattern 'UPDATE_PROFILES="\$\{UPDATE_PROFILES:-first-deploy monitoring\}"' `
     -Message "scripts/update.sh must select safe default compose profiles."
 
 Assert-Contains `
@@ -121,6 +121,29 @@ foreach ($cleanupService in @("qbitmanage", "cleanuparr")) {
     Assert-Contains -Text $composeText -Pattern $pattern -Message "$cleanupService must be behind the cleanup profile."
     $badPattern = "(?ms)^  ${cleanupService}:.*?profiles:\s+\[.*first-deploy.*\]"
     Assert-NotContains -Text $composeText -Pattern $badPattern -Message "$cleanupService must not be in first-deploy."
+}
+
+$monitoringExpected = @(
+    "ntfy",
+    "uptime-kuma"
+) | Sort-Object
+
+$currentService = $null
+$monitoringActual = New-Object System.Collections.Generic.List[string]
+foreach ($line in (Get-Content -Path $composePath)) {
+    if ($line -match '^  ([A-Za-z0-9_-]+):\s*$') {
+        $currentService = $Matches[1]
+        continue
+    }
+
+    if ($currentService -and $line -match 'profiles:\s+\[.*"monitoring".*\]') {
+        $monitoringActual.Add($currentService)
+    }
+}
+
+$monitoringActualSorted = $monitoringActual | Sort-Object
+if (($monitoringActualSorted -join ",") -ne ($monitoringExpected -join ",")) {
+    throw "monitoring profile mismatch. Expected: $($monitoringExpected -join ', '); got: $($monitoringActualSorted -join ', ')"
 }
 
 $scriptFiles = Get-ChildItem -Path (Join-Path $repoRoot "scripts") -Filter "*.sh"

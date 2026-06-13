@@ -94,11 +94,14 @@ under no-deletion pressure.
 docker compose --profile first-deploy up -d
 ```
 
-Optionally add observability once core is stable:
+Optionally add monitoring once core is stable:
 
 ```bash
-docker compose --profile first-deploy --profile observability up -d
+docker compose --profile first-deploy --profile monitoring up -d
 ```
+
+Use `--profile observability` only when you intentionally want the full
+observability bundle, including Jellystat, Jellystat Postgres, and Diun.
 
 **Do not** enable `cleanup` during the 30 days. Do not enable
 `automation` for the first week (`cross-seed`, `autobrr`, `unpackerr`,
