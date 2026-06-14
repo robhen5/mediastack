@@ -24,7 +24,8 @@ Read these first:
 4. `docs/risk-register.md`
 5. `docs/deployment-checklist.md`
 6. `docs/disk-health.md`
-7. Existing legacy docs only after that: `docs/legacy/SETUP.md`,
+7. `docs/firewall.md`
+8. Existing legacy docs only after that: `docs/legacy/SETUP.md`,
    `docs/legacy/MAINTENANCE.md`
 
 ## Current State
@@ -79,6 +80,8 @@ For deployment work, verify:
   and at least one backup tarball is copied off-host.
 - Disk health work should use stable `/dev/disk/by-id` paths and host-side
   smartmontools. Do not use `/dev/sdX` in docs or scripts except as a warning.
+- Firewall work should preserve LAN/Tailscale allowlists and must not open
+  admin ports to `0.0.0.0/0`.
 
 ## Hardware Guidance
 

@@ -259,6 +259,8 @@ tar -xzf "$BACKUP_ROOT/config-test-$(date +%Y%m%d).tar.gz" -C /tmp/mediastack-re
   self-tests.
 - `scripts/start-disk-long-test.service` / `.timer` start a monthly long test
   on the first Sunday.
+- `scripts/apply-firewall-rules.sh` prints or applies the known-good UFW
+  allowlist for LAN/Tailscale-only access to the stack.
 
 ## Documentation
 
@@ -268,5 +270,6 @@ tar -xzf "$BACKUP_ROOT/config-test-$(date +%Y%m%d).tar.gz" -C /tmp/mediastack-re
 - `docs/hardware-plan.md`: Lenovo, Exos, TerraMaster, Ubuntu, and Unraid plan
 - `docs/deployment-checklist.md`: target-host validation and deployment steps
 - `docs/disk-health.md`: SMART checks, ntfy disk alerts, and monthly long tests
+- `docs/firewall.md`: UFW allowlist for LAN/Tailscale-only service access
 - `docs/risk-register.md`: data-loss and scaling risks
 - `docs/legacy/`: older detailed setup/maintenance notes retained for reference

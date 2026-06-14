@@ -16,6 +16,7 @@ for the Lenovo plus 28TB Exos media server plan.
 | P1 | Host-specific UID/GID values | Values are parameterized but still must match the target host | Permission failures, broken GPU access, Docker socket access issues | Set `PUID`, `PGID`, `RENDER_GID`, `VIDEO_GID`, and `DOCKER_GID` from target-host commands |
 | P1 | Hardware acceleration not verified | Compose exposes `/dev/dri` for Intel Quick Sync | Jellyfin transcoding may fail or use CPU | Test one forced transcode on the i5-10400 |
 | P1 | WebUIs exposed on all interfaces | Most ports use `host:container` without localhost binding | LAN users can reach admin apps | Bind admin ports to localhost or management network |
+| P1 | Firewall rules not reproducible | UFW was configured manually on the Ubuntu host | Rebuilds or migrations may accidentally expose admin ports | Capture LAN/Tailscale allowlist in `docs/firewall.md` and `scripts/apply-firewall-rules.sh` |
 | P1 | Rolling `latest` image tags | Many services use `latest` | Unexpected breaking upgrades | Pin major versions or use scheduled/manual update process |
 | P1 | Docker socket exposure | Homepage and Diun mount `/var/run/docker.sock:ro` | Container compromise can reveal host/container metadata | Keep read-only, restrict access, or remove if not needed |
 | P1 | qBittorrent namespace staleness | Docs and `update.sh` account for Gluetun recreation | qBit appears up but loses internet | Keep forced recreation logic and monitor `gluetun:8080` |

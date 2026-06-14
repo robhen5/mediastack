@@ -5,6 +5,8 @@ $composePath = Join-Path $repoRoot "docker-compose.yml"
 $updateScript = Join-Path $repoRoot "scripts/update.sh"
 $envExample = Join-Path $repoRoot ".env.example"
 $safetyDoc = Join-Path $repoRoot "docs/SAFETY.md"
+$firewallDoc = Join-Path $repoRoot "docs/firewall.md"
+$firewallScript = Join-Path $repoRoot "scripts/apply-firewall-rules.sh"
 $backupScript = Join-Path $repoRoot "scripts/backup-config.sh"
 $backupService = Join-Path $repoRoot "scripts/backup-config.service"
 $backupTimer = Join-Path $repoRoot "scripts/backup-config.timer"
@@ -200,6 +202,8 @@ foreach ($name in @(
     "DATA_ROOT",
     "LAN_IP",
     "LAN_SUBNET",
+    "TAILSCALE_SUBNET",
+    "FIREWALL_PORTS",
     "WIREGUARD_PRIVATE_KEY",
     "WIREGUARD_ADDRESSES",
     "QBIT_USER",
@@ -265,6 +269,8 @@ Assert-Contains `
 # Required safety scripts and the SAFETY.md doc must exist.
 foreach ($p in @(
     $safetyDoc,
+    $firewallDoc,
+    $firewallScript,
     $backupScript,
     $backupService,
     $backupTimer,
@@ -286,6 +292,50 @@ foreach ($p in @(
 
 $backupServiceText = Get-Content -Raw -Path $backupService
 $backupTimerText = Get-Content -Raw -Path $backupTimer
+$firewallScriptText = Get-Content -Raw -Path $firewallScript
+$firewallDocText = Get-Content -Raw -Path $firewallDoc
+
+Assert-Contains `
+    -Text $firewallScriptText `
+    -Pattern 'DRY_RUN="\$\{DRY_RUN:-1\}"' `
+    -Message "Firewall script must default to dry-run."
+
+Assert-Contains `
+    -Text $firewallScriptText `
+    -Pattern 'APPLY="\$\{APPLY:-0\}"' `
+    -Message "Firewall script must require APPLY=1 before changing UFW."
+
+Assert-Contains `
+    -Text $firewallScriptText `
+    -Pattern '0\.0\.0\.0/0' `
+    -Message "Firewall script must explicitly guard against 0.0.0.0/0."
+
+Assert-Contains `
+    -Text $firewallScriptText `
+    -Pattern 'ufw default deny incoming' `
+    -Message "Firewall script must set default incoming deny."
+
+Assert-Contains `
+    -Text $firewallScriptText `
+    -Pattern 'ufw allow from "\$\{LAN_SUBNET\}" to any port "\$\{port\}" proto tcp' `
+    -Message "Firewall script must allow configured ports from LAN_SUBNET."
+
+Assert-Contains `
+    -Text $firewallScriptText `
+    -Pattern 'ufw allow from "\$\{TAILSCALE_SUBNET\}" to any port "\$\{port\}" proto tcp' `
+    -Message "Firewall script must allow configured ports from TAILSCALE_SUBNET."
+
+foreach ($port in @("22", "3000", "3001", "5055", "6767", "7878", "8081", "8096", "8989", "9696", "2586")) {
+    Assert-Contains `
+        -Text $firewallDocText `
+        -Pattern "\| $port \|" `
+        -Message "Firewall docs must include validated port $port."
+}
+
+Assert-Contains `
+    -Text $firewallDocText `
+    -Pattern 'Default: deny \(incoming\), allow \(outgoing\), deny \(routed\)' `
+    -Message "Firewall docs must capture the verified default UFW policy."
 
 Assert-Contains `
     -Text $backupServiceText `

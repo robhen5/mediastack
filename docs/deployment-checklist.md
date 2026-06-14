@@ -174,6 +174,16 @@ sudo /opt/mediastack/scripts/check-disk-health.sh
 
 Then install the timers from `docs/disk-health.md`.
 
+Firewall:
+
+```bash
+LAN_SUBNET=192.168.0.0/24 DRY_RUN=1 ./scripts/apply-firewall-rules.sh
+LAN_SUBNET=192.168.0.0/24 APPLY=1 ./scripts/apply-firewall-rules.sh
+sudo ufw status verbose
+```
+
+See `docs/firewall.md`.
+
 Install weekly config backups after the first successful manual backup:
 
 ```bash
