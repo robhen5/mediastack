@@ -96,8 +96,16 @@ services.
 | `core` | Same core movie/TV stack |
 | `optional` | Broad opt-in for non-core services |
 | `indexers` | FlareSolverr |
-| `automation` | Recyclarr, autobrr, cross-seed, Unpackerr |
+| `quality` | Recyclarr only |
+| `extract` | Unpackerr only |
+| `updates` | Diun only |
+| `stats` | Jellystat and Jellystat Postgres |
+| `advanced` | autobrr and cross-seed |
+| `autobrr` | autobrr only |
+| `cross-seed` | cross-seed only |
 | `cleanup` | qbitmanage and Cleanuparr; disabled by default |
+| `qbitmanage` | qbitmanage only; dry-run by default |
+| `cleanuparr` | Cleanuparr only; configure UI test mode first |
 | `dashboard` | Homepage only |
 | `polish` | Caddy and Homepage |
 | `monitoring` | ntfy and Uptime Kuma only |
@@ -108,6 +116,30 @@ seed-time rules, and dry-run/report-only settings are verified. The compose
 file ships qbit_manage with `QBT_DRY_RUN=true` so that even when the
 `cleanup` profile is enabled, the tool starts in report-only mode. See
 `docs/SAFETY.md` §4 "Warnings before enabling deletion automation."
+
+## Add-On Order
+
+Add optional services one at a time:
+
+```bash
+docker compose --profile updates up -d diun
+docker compose --profile stats up -d jellystat-db jellystat
+docker compose --profile quality up -d recyclarr
+docker compose --profile extract up -d unpackerr
+```
+
+Advanced/risky tools stay explicit:
+
+```bash
+docker compose --profile autobrr up -d autobrr
+docker compose --profile cross-seed up -d cross-seed
+docker compose --profile qbitmanage up -d qbitmanage
+docker compose --profile cleanuparr up -d cleanuparr
+```
+
+Do not start `qbitmanage` or `cleanuparr` until you have a current config
+backup, a restore rehearsal, verified hardlinks, and dry-run/test-mode
+configuration.
 
 ## Dashboard
 

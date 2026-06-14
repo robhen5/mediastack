@@ -218,7 +218,7 @@ services:
   recyclarr:
     image: ghcr.io/recyclarr/recyclarr:latest
     container_name: recyclarr
-    profiles: ["optional", "automation"]
+    profiles: ["optional", "quality"]
     user: "${PUID:-1000}:${PGID:-1000}"
     volumes:
       - ${CONFIG_ROOT:-/opt/mediastack/config}/recyclarr:/config
@@ -234,7 +234,7 @@ services:
   autobrr:
     image: ghcr.io/autobrr/autobrr:latest
     container_name: autobrr
-    profiles: ["optional", "automation"]
+    profiles: ["optional", "advanced", "autobrr"]
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
@@ -257,7 +257,7 @@ services:
   cross-seed:
     image: ghcr.io/cross-seed/cross-seed:latest
     container_name: cross-seed
-    profiles: ["optional", "automation"]
+    profiles: ["optional", "advanced", "cross-seed"]
     user: "${PUID:-1000}:${PGID:-1000}"
     command: daemon
     environment:
@@ -287,7 +287,7 @@ services:
   qbitmanage:
     image: ghcr.io/stuffanthings/qbit_manage:latest
     container_name: qbitmanage
-    profiles: ["cleanup"]
+    profiles: ["cleanup", "qbitmanage"]
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
@@ -316,7 +316,7 @@ services:
   unpackerr:
     image: ghcr.io/hotio/unpackerr:latest
     container_name: unpackerr
-    profiles: ["optional", "automation"]
+    profiles: ["optional", "extract"]
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
@@ -462,7 +462,7 @@ services:
   cleanuparr:
     image: ghcr.io/cleanuparr/cleanuparr:latest
     container_name: cleanuparr
-    profiles: ["cleanup"]
+    profiles: ["cleanup", "cleanuparr"]
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
@@ -504,11 +504,11 @@ services:
   jellystat-db:
     image: postgres:16-alpine
     container_name: jellystat-db
-    profiles: ["optional", "observability"]
+    profiles: ["optional", "observability", "stats"]
     environment:
       - POSTGRES_USER=jellystat
       - POSTGRES_PASSWORD=${JELLYSTAT_DB_PASSWORD}
-      - POSTGRES_DB=jfstat
+      - POSTGRES_DB=jellystat
       - TZ=${TZ:-America/New_York}
     volumes:
       - ${CONFIG_ROOT:-/opt/mediastack/config}/jellystat-db:/var/lib/postgresql/data
@@ -517,7 +517,7 @@ services:
   jellystat:
     image: cyfershepard/jellystat:latest
     container_name: jellystat
-    profiles: ["optional", "observability"]
+    profiles: ["optional", "observability", "stats"]
     depends_on:
       - jellystat-db
     environment:
@@ -558,7 +558,7 @@ services:
   diun:
     image: crazymax/diun:latest
     container_name: diun
-    profiles: ["optional", "observability"]
+    profiles: ["optional", "observability", "updates"]
     command: serve
     environment:
       - TZ=${TZ:-America/New_York}

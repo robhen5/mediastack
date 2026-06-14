@@ -206,6 +206,11 @@ Only after the first-deploy profile passes:
 - [ ] Add monitoring with `--profile monitoring` for ntfy and Uptime Kuma.
 - [ ] Add the dashboard with `scripts/install-homepage-config.sh`, then
       `docker compose --profile dashboard --profile monitoring up -d homepage ntfy uptime-kuma`.
+- [ ] Add update notifications with `docker compose --profile updates up -d diun`.
+- [ ] Add Jellyfin stats with `docker compose --profile stats up -d jellystat-db jellystat`.
+- [ ] Add Recyclarr quality syncing with `docker compose --profile quality up -d recyclarr`.
+- [ ] Add Unpackerr only when archived releases need extraction:
+      `docker compose --profile extract up -d unpackerr`.
 - [ ] Add full observability with `--profile observability` only when you also
       want Jellystat and Diun.
 - [ ] Add optional services by profile, one category at a time.

@@ -143,10 +143,25 @@ if (($firstDeployActualSorted -join ",") -ne ($firstDeployExpected -join ",")) {
 }
 
 foreach ($cleanupService in @("qbitmanage", "cleanuparr")) {
-    $pattern = "(?ms)^  ${cleanupService}:.*?profiles:\s+\[`"cleanup`"\]"
+    $pattern = "(?ms)^  ${cleanupService}:.*?profiles:\s+\[.*`"cleanup`".*\]"
     Assert-Contains -Text $composeText -Pattern $pattern -Message "$cleanupService must be behind the cleanup profile."
     $badPattern = "(?ms)^  ${cleanupService}:.*?profiles:\s+\[.*first-deploy.*\]"
     Assert-NotContains -Text $composeText -Pattern $badPattern -Message "$cleanupService must not be in first-deploy."
+}
+
+foreach ($pair in @(
+    @{ Service = "diun"; Profile = "updates" },
+    @{ Service = "jellystat"; Profile = "stats" },
+    @{ Service = "jellystat-db"; Profile = "stats" },
+    @{ Service = "recyclarr"; Profile = "quality" },
+    @{ Service = "unpackerr"; Profile = "extract" },
+    @{ Service = "autobrr"; Profile = "autobrr" },
+    @{ Service = "cross-seed"; Profile = "cross-seed" },
+    @{ Service = "qbitmanage"; Profile = "qbitmanage" },
+    @{ Service = "cleanuparr"; Profile = "cleanuparr" }
+)) {
+    $pattern = "(?ms)^  $($pair.Service):.*?profiles:\s+\[.*`"$($pair.Profile)`".*\]"
+    Assert-Contains -Text $composeText -Pattern $pattern -Message "$($pair.Service) must have explicit profile $($pair.Profile)."
 }
 
 $monitoringExpected = @(
@@ -445,6 +460,11 @@ Assert-Contains `
     -Text $composeText `
     -Pattern 'HOMEPAGE_VAR_BAZARR_KEY=\$\{BAZARR_APIKEY\}' `
     -Message "Homepage compose env must expose BAZARR_APIKEY for the Bazarr widget."
+
+Assert-Contains `
+    -Text $composeText `
+    -Pattern 'POSTGRES_DB=jellystat' `
+    -Message "Jellystat Postgres must create the database name that the Jellystat app expects."
 
 # The safety scripts themselves must not contain `rm -rf` (already checked by
 # the existing rm-rf rule for scripts/*.sh, but the doc-side rule is here).
