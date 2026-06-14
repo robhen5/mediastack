@@ -95,9 +95,22 @@ foreach ($bad in @(
     "America/Denver",
     "CachyOS",
     "AMD VAAPI",
-    "7900 XTX"
+    "7900 XTX",
+    "lazylibrarian",
+    "calibre-web-automated",
+    "audiobookshelf",
+    "suwayomi",
+    "kavita",
+    '"books"',
+    '"manga"',
+    "5299",
+    "8083",
+    "13378",
+    "4567",
+    "5000"
 )) {
     Assert-NotContains -Text $composeText -Pattern [regex]::Escape($bad) -Message "docker-compose.yml still contains old marker: $bad"
+    Assert-NotContains -Text $scriptText -Pattern [regex]::Escape($bad) -Message "scripts/update.sh still contains old marker: $bad"
 }
 
 $firstDeployExpected = @(

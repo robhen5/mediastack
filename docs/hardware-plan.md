@@ -48,9 +48,7 @@ Use for:
 
 - Movies
 - TV
-- Anime if desired
 - Downloads and seeding data
-- Books, audiobooks, and manga if those stay in this stack
 
 Downloads and imported media should live on one filesystem if Sonarr/Radarr
 hardlinks are expected to work.

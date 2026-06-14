@@ -25,8 +25,6 @@ Read these first:
 5. `docs/deployment-checklist.md`
 6. `docs/disk-health.md`
 7. `docs/firewall.md`
-8. Existing legacy docs only after that: `docs/legacy/SETUP.md`,
-   `docs/legacy/MAINTENANCE.md`
 
 ## Current State
 
@@ -37,6 +35,8 @@ Read these first:
   parameterized through `.env`.
 - Use `docker compose --profile first-deploy up -d` for the first safe launch.
 - Use the `dashboard` profile for Homepage without also enabling Caddy.
+- The active stack is movies/TV only. Do not reintroduce books, audiobooks,
+  manga, or anime-specific services unless the user explicitly asks.
 - qbitmanage and Cleanuparr are behind the `cleanup` profile and must not be
   enabled casually.
 

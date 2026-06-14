@@ -30,7 +30,7 @@ sudo mkdir -p /opt/mediastack/{config,backups}
 - [ ] Create the HDD-backed data root:
 
 ```bash
-sudo mkdir -p /media/storage/data/{torrents,media/{movies,tv},books,audiobooks,manga}
+sudo mkdir -p /media/storage/data/{torrents,media/{movies,tv}}
 ```
 
 - [ ] Confirm Docker will not start before the storage mount is available.

@@ -11,9 +11,6 @@
 #    DATA_ROOT=/media/storage/data          <- HDD/pool-backed shared data root
 #      |-- torrents/                        <- qBittorrent downloads land here
 #      |-- media/                           <- *arrs hardlink finished video here
-#      |-- books/
-#      |-- audiobooks/
-#      `-- manga/
 #
 #  Every container that touches media mounts the SAME /data root so
 #  Sonarr/Radarr can HARDLINK instead of copy (instant moves; file
@@ -57,7 +54,6 @@ services:
       - 8081:8080        # qBittorrent WebUI — host 8081 (headscale owns host 8080)
       - 6881:6881        # torrent listen port
       - 6881:6881/udp
-      - 5299:5299        # LazyLibrarian WebUI (shares gluetun's namespace)
     volumes:
       - ${CONFIG_ROOT:-/opt/mediastack/config}/gluetun:/gluetun
       # Scripts bind-mounted in so the port-forward hook can run from a
@@ -78,10 +74,8 @@ services:
       # qBit creds for the hook script — passed through from .env.
       - QBIT_USER=${QBIT_USER}
       - QBIT_PASS=${QBIT_PASS}
-      # Disable gluetun's DNS block lists. They mis-classify some legitimate
-      # destinations for this stack (e.g. annas-archive.org under
-      # "malicious"), causing silent DNS failures for LazyLibrarian's
-      # downloads. System-wide DoT (§7.1) still encrypts our lookups.
+      # Disable gluetun's DNS block lists. They can mis-classify legitimate
+      # tracker/indexer destinations and cause confusing DNS failures.
       - BLOCK_MALICIOUS=off
       - BLOCK_SURVEILLANCE=off
       - BLOCK_ADS=off
@@ -221,7 +215,6 @@ services:
   # ================================================================
 
   # ---- Syncs TRaSH quality profiles into Sonarr/Radarr -------------
-  # Make an anime profile that prefers softsubbed / multi-sub releases.
   recyclarr:
     image: ghcr.io/recyclarr/recyclarr:latest
     container_name: recyclarr
@@ -348,111 +341,6 @@ services:
     volumes:
       - ${CONFIG_ROOT:-/opt/mediastack/config}/unpackerr:/config
       - ${DATA_ROOT:-/media/storage/data}:/data
-    restart: unless-stopped
-
-  # ================================================================
-  #  BOOKS — libgen-friendly stack (replaces retired Readarr)
-  # ================================================================
-
-  # ---- Acquisition + author monitoring; has native libgen support -
-  # Set its download destination to /data/books/ingest so that
-  # Calibre-Web Automated picks finished books up automatically.
-  # NOTE: libgen DIRECT downloads come straight from this container
-  # (not via the VPN). To route them through gluetun too, give this
-  # service `network_mode: "service:gluetun"` and expose 5299 on
-  # gluetun instead — see chat notes.
-  # Routed through gluetun so libgen direct downloads use the VPN.
-  # Shares gluetun's network namespace — same pattern as qBittorrent.
-  # Sibling services that talk to LazyLibrarian must use `gluetun:5299`,
-  # NOT `lazylibrarian:5299`, per the §8 gotcha.
-  lazylibrarian:
-    image: lscr.io/linuxserver/lazylibrarian:latest
-    container_name: lazylibrarian
-    profiles: ["optional", "books"]
-    network_mode: "service:gluetun"
-    depends_on:
-      - gluetun
-    environment:
-      - PUID=${PUID:-1000}
-      - PGID=${PGID:-1000}
-      - TZ=${TZ:-America/New_York}
-    volumes:
-      - ${CONFIG_ROOT:-/opt/mediastack/config}/lazylibrarian:/config
-      - ${DATA_ROOT:-/media/storage/data}:/data
-    restart: unless-stopped
-
-  # ---- Ebook library, in-browser reader, OPDS feed for e-readers ---
-  # Watches /data/books/ingest, auto-imports into /data/books/library.
-  calibre-web-automated:
-    image: crocodilestick/calibre-web-automated:latest
-    container_name: calibre-web-automated
-    profiles: ["optional", "books"]
-    environment:
-      - PUID=${PUID:-1000}
-      - PGID=${PGID:-1000}
-      - TZ=${TZ:-America/New_York}
-    volumes:
-      - ${CONFIG_ROOT:-/opt/mediastack/config}/cwa:/config
-      - ${DATA_ROOT:-/media/storage/data}/books/ingest:/cwa-book-ingest
-      - ${DATA_ROOT:-/media/storage/data}/books/library:/calibre-library
-    ports:
-      - 8083:8083
-    restart: unless-stopped
-
-  # ---- Audiobooks + podcasts (great for JP listening immersion) ----
-  audiobookshelf:
-    image: ghcr.io/advplyr/audiobookshelf:latest
-    container_name: audiobookshelf
-    profiles: ["optional", "books"]
-    environment:
-      - TZ=${TZ:-America/New_York}
-    volumes:
-      - ${CONFIG_ROOT:-/opt/mediastack/config}/audiobookshelf:/config
-      - ${CONFIG_ROOT:-/opt/mediastack/config}/audiobookshelf-metadata:/metadata
-      - ${DATA_ROOT:-/media/storage/data}/audiobooks:/audiobooks
-    ports:
-      - 13378:80
-    restart: unless-stopped
-
-  # ================================================================
-  #  MANGA — Phase 6 (Suwayomi acquisition + Kavita reader)
-  # ================================================================
-
-  # ---- Suwayomi-Server: "Sonarr for manga" -----------------------
-  # Self-hosted Tachiyomi. Uses the Tachiyomi extension catalog to
-  # monitor manga series and auto-download new chapters as CBZ files.
-  # Drops chapters into /data/manga/<Series>/Chapter N.cbz so Kavita
-  # picks them up.
-  # No VPN needed — Suwayomi scrapes reader sites, not torrents.
-  suwayomi:
-    image: ghcr.io/suwayomi/tachidesk:latest
-    container_name: suwayomi
-    profiles: ["optional", "manga"]
-    environment:
-      - TZ=${TZ:-America/New_York}
-      - DOWNLOAD_AS_CBZ=true
-    volumes:
-      - ${CONFIG_ROOT:-/opt/mediastack/config}/suwayomi:/home/suwayomi/.local/share/Tachidesk
-      - ${DATA_ROOT:-/media/storage/data}/manga:/manga
-    ports:
-      - 4567:4567
-    restart: unless-stopped
-
-  # ---- Kavita: manga + comics reader / library --------------------
-  # Watches /data/manga for new chapters Suwayomi drops, serves a
-  # web reader optimized for sequential art (right-to-left, double-page,
-  # page-turn animations). Also has OPDS for offline reading on tablets.
-  kavita:
-    image: jvmilazz0/kavita:latest
-    container_name: kavita
-    profiles: ["optional", "manga"]
-    environment:
-      - TZ=${TZ:-America/New_York}
-    volumes:
-      - ${CONFIG_ROOT:-/opt/mediastack/config}/kavita:/kavita/config
-      - ${DATA_ROOT:-/media/storage/data}/manga:/manga
-    ports:
-      - 5000:5000
     restart: unless-stopped
 
   # ================================================================
@@ -664,7 +552,7 @@ services:
 
   # ---- Diun: "a container image update is available" pings -------
   # Notify-ONLY by design — it does NOT auto-update (that would undo
-  # update.sh's gluetun-ID-aware recreate of qbit/lazylibrarian).
+  # deliberate operator control of image updates.
   # Diun watches every running container and pings ntfy when a newer
   # image is published; you then run update.sh deliberately.
   diun:

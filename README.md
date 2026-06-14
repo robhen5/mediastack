@@ -13,7 +13,7 @@ Docker Compose media stack for the Lenovo home server plan:
 
 This repo is now parameterized for the actual hardware plan. It is still
 conservative: first deployment brings up only the core movie/TV stack, while
-cleanup, observability, books, manga, dashboard, and other optional services
+cleanup, observability, dashboard, and other optional services
 require explicit Docker Compose profiles.
 
 > **Read `docs/SAFETY.md` before first deploy.** Everything that can move,
@@ -62,9 +62,6 @@ Keep both torrents and imported media under `DATA_ROOT`:
   media/
     movies/
     tv/
-  books/
-  audiobooks/
-  manga/
 ```
 
 ## First Deploy
@@ -101,8 +98,6 @@ services.
 | `indexers` | FlareSolverr |
 | `automation` | Recyclarr, autobrr, cross-seed, Unpackerr |
 | `cleanup` | qbitmanage and Cleanuparr; disabled by default |
-| `books` | LazyLibrarian, Calibre-Web Automated, Audiobookshelf |
-| `manga` | Suwayomi and Kavita |
 | `dashboard` | Homepage only |
 | `polish` | Caddy and Homepage |
 | `monitoring` | ntfy and Uptime Kuma only |

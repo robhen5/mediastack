@@ -42,7 +42,6 @@ media or config, ranked by blast radius.
 | **Recyclarr** | Writes TRaSH quality profiles into Sonarr/Radarr. Not destructive of files, but a bad profile can drive aggressive upgrade-replace cycles. | Cron at noon; behind `optional`/`automation`. | `config/recyclarr/recyclarr.yml` |
 | **update.sh** | `docker compose pull` + `up -d` + `docker image prune -f`. Touches images, not media. Supports `DRY_RUN=1`. | Manual invocation. | `scripts/update.sh` |
 | **qBit + Gluetun namespace stale state** | If qBit's namespace handle goes stale, an operator might delete-and-readd torrents trying to fix it — wiping the hardlinked library copies. | Mitigated by `update.sh` and the port-sync hook. | `scripts/update.sh` |
-| **Legacy `rm -rf` examples** | `docs/legacy/MAINTENANCE.md` shows `rm -rf data/manga/<Series>/` as the manga delete pattern. Easy to mistype the path. | Legacy reference; not invoked by anything. | `docs/legacy/MAINTENANCE.md` |
 | **Maintainerr / Janitorr** | Auto-delete media by watch status/age. | **Not deployed.** Do not add without a separate safety review. | n/a |
 
 Tools NOT in this stack but commonly bolted onto media servers — and
@@ -218,7 +217,7 @@ What's in scope and where it lives:
 | `config/jellyseerr/` | `${CONFIG_ROOT}/jellyseerr` | User wiring to Jellyfin, request history. | `backup-config.sh` |
 | `config/gluetun/` | `${CONFIG_ROOT}/gluetun` | Forwarded-port state. Regenerates from ProtonVPN; included for completeness. | `backup-config.sh` |
 | `config/jellystat/` | `${CONFIG_ROOT}/jellystat` | App config only — stats are re-synced from Jellyfin. Postgres data dir (jellystat-db) is deliberately excluded. | `backup-config.sh` |
-| Media payload | `${DATA_ROOT}/{torrents,media,books,audiobooks,manga}` | Hundreds of GB to multi-TB. Re-downloadable via the *arrs / trackers. | **NOT backed up.** Use the *arrs' history and the source trackers for recovery. Consider parity (SnapRAID, ZFS, Unraid) for the multi-drive future. |
+| Media payload | `${DATA_ROOT}/{torrents,media}` | Hundreds of GB to multi-TB. Re-downloadable via the *arrs / trackers. | **NOT backed up.** Use the *arrs' history and the source trackers for recovery. Consider parity (SnapRAID, ZFS, Unraid) for the multi-drive future. |
 
 Cadence and rotation:
 
@@ -275,7 +274,7 @@ present. No `[MISS]` lines.
       the box.
 - [ ] Extract: `tar -xzf mediastack-config-*.tar.gz -C /opt/mediastack`
 - [ ] Reconstruct the (empty) data root:
-      `mkdir -p $DATA_ROOT/{torrents,media/{movies,tv},books,audiobooks,manga}`
+      `mkdir -p $DATA_ROOT/{torrents,media/{movies,tv}}`
 - [ ] Confirm `.env` came back with all secrets intact.
 - [ ] `docker compose --profile first-deploy up -d`
 - [ ] Confirm every core service comes back without prompting for a
@@ -350,7 +349,7 @@ df -h "${DATA_ROOT:-/media/storage/data}"
 If usage grew much faster than the grabs the *arrs report this week,
 hardlinks are silently broken even though the test script passes. The
 most common cause is one specific category folder ending up on a
-different filesystem (`torrents/manga/` on a separate share, etc.) —
+different filesystem (`torrents/` on a separate share, etc.) —
 re-run `test-hardlinks.sh` with `DATA_ROOT` pointed at each sub-tree.
 
 ### Failure modes to watch for

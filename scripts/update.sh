@@ -86,7 +86,7 @@ if [[ "${old_gluetun_id}" != "${new_gluetun_id}" ]]; then
   # If you add more VPN-routed containers, add them here. Each service is only
   # recreated when its container already exists, so optional profiles stay off.
   dependents=()
-  for service in qbittorrent lazylibrarian; do
+  for service in qbittorrent; do
     if container_exists "${service}"; then
       dependents+=("${service}")
     fi
