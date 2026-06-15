@@ -14,6 +14,7 @@ Tailscale. The current validated posture is:
 | Port | Service |
 |---|---|
 | 22 | SSH |
+| 80 | Caddy front door to Homepage |
 | 3000 | Homepage dashboard |
 | 3001 | Uptime Kuma |
 | 5055 | Jellyseerr |
@@ -24,6 +25,7 @@ Tailscale. The current validated posture is:
 | 8989 | Sonarr |
 | 9696 | Prowlarr |
 | 2586 | ntfy |
+| 11011 | Cleanuparr |
 
 Allowed source networks:
 
@@ -61,7 +63,7 @@ sudo ufw status verbose
 sudo ufw allow from 192.168.0.0/24 to any port 22 proto tcp
 sudo ufw allow from 100.64.0.0/10 to any port 22 proto tcp
 
-for port in 3000 3001 5055 6767 7878 8081 8096 8989 9696 2586; do
+for port in 80 3000 3001 5055 6767 7878 8081 8096 8989 9696 2586 11011; do
   sudo ufw allow from 192.168.0.0/24 to any port "$port" proto tcp
   sudo ufw allow from 100.64.0.0/10 to any port "$port" proto tcp
 done
@@ -83,9 +85,11 @@ Expected local service checks:
 ```bash
 curl -I http://192.168.0.172:8096
 curl -I http://192.168.0.172:3000
+curl -I http://192.168.0.172
 ```
 
-Jellyfin may return `302 Found` to `web/`; Homepage should return `200 OK`.
+Jellyfin may return `302 Found` to `web/`; Homepage and Caddy should return
+`200 OK`.
 
 ## Safety Notes
 

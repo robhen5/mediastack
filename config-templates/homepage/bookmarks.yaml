@@ -1,11 +1,14 @@
 ---
 - Server:
+    - MediaStack Dashboard:
+        - href: "http://{{HOMEPAGE_VAR_REMOTE_IP}}"
+          icon: homepage
     - GitHub Repo:
         - href: https://github.com/robhen5/mediastack
           icon: github-light
     - Uptime Kuma:
-        - href: "http://{{HOMEPAGE_VAR_LAN_IP}}:3001"
+        - href: "http://{{HOMEPAGE_VAR_REMOTE_IP}}:3001"
           icon: uptime-kuma
     - ntfy Alerts:
-        - href: "http://{{HOMEPAGE_VAR_LAN_IP}}:2586"
+        - href: "http://{{HOMEPAGE_VAR_REMOTE_IP}}:2586"
           icon: ntfy

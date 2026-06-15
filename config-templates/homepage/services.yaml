@@ -1,7 +1,7 @@
 ---
 - Media:
     - Jellyfin:
-        href: "http://{{HOMEPAGE_VAR_LAN_IP}}:8096"
+        href: "http://{{HOMEPAGE_VAR_REMOTE_IP}}:8096"
         description: Movies and TV playback
         icon: jellyfin
         server: local-docker
@@ -13,15 +13,21 @@
           enableBlocks: true
           enableNowPlaying: true
     - Jellyseerr:
-        href: "http://{{HOMEPAGE_VAR_LAN_IP}}:5055"
+        href: "http://{{HOMEPAGE_VAR_REMOTE_IP}}:5055"
         description: Request movies and shows
         icon: jellyseerr
         server: local-docker
         container: jellyseerr
+    - Jellystat:
+        href: "http://{{HOMEPAGE_VAR_REMOTE_IP}}:3010"
+        description: Jellyfin viewing stats
+        icon: jellystat
+        server: local-docker
+        container: jellystat
 
 - Automation:
     - Sonarr:
-        href: "http://{{HOMEPAGE_VAR_LAN_IP}}:8989"
+        href: "http://{{HOMEPAGE_VAR_REMOTE_IP}}:8989"
         description: TV automation
         icon: sonarr
         server: local-docker
@@ -31,7 +37,7 @@
           url: http://sonarr:8989
           key: "{{HOMEPAGE_VAR_SONARR_KEY}}"
     - Radarr:
-        href: "http://{{HOMEPAGE_VAR_LAN_IP}}:7878"
+        href: "http://{{HOMEPAGE_VAR_REMOTE_IP}}:7878"
         description: Movie automation
         icon: radarr
         server: local-docker
@@ -41,7 +47,7 @@
           url: http://radarr:7878
           key: "{{HOMEPAGE_VAR_RADARR_KEY}}"
     - Prowlarr:
-        href: "http://{{HOMEPAGE_VAR_LAN_IP}}:9696"
+        href: "http://{{HOMEPAGE_VAR_REMOTE_IP}}:9696"
         description: Indexer manager
         icon: prowlarr
         server: local-docker
@@ -51,7 +57,7 @@
           url: http://prowlarr:9696
           key: "{{HOMEPAGE_VAR_PROWLARR_KEY}}"
     - Bazarr:
-        href: "http://{{HOMEPAGE_VAR_LAN_IP}}:6767"
+        href: "http://{{HOMEPAGE_VAR_REMOTE_IP}}:6767"
         description: Subtitle automation
         icon: bazarr
         server: local-docker
@@ -63,7 +69,7 @@
 
 - Downloads:
     - qBittorrent:
-        href: "http://{{HOMEPAGE_VAR_LAN_IP}}:8081"
+        href: "http://{{HOMEPAGE_VAR_REMOTE_IP}}:8081"
         description: Torrent client through Gluetun
         icon: qbittorrent
         server: local-docker
@@ -74,21 +80,27 @@
           username: "{{HOMEPAGE_VAR_QBIT_USER}}"
           password: "{{HOMEPAGE_VAR_QBIT_PASS}}"
     - Gluetun:
-        href: "http://{{HOMEPAGE_VAR_LAN_IP}}:8081"
+        href: "http://{{HOMEPAGE_VAR_REMOTE_IP}}:8081"
         description: VPN gateway for qBittorrent
         icon: gluetun
         server: local-docker
         container: gluetun
+    - Cleanuparr:
+        href: "http://{{HOMEPAGE_VAR_REMOTE_IP}}:11011"
+        description: Cleanup rules in dry-run mode
+        icon: cleanuparr
+        server: local-docker
+        container: cleanuparr
 
 - Monitoring:
     - Uptime Kuma:
-        href: "http://{{HOMEPAGE_VAR_LAN_IP}}:3001"
+        href: "http://{{HOMEPAGE_VAR_REMOTE_IP}}:3001"
         description: Service health and alerts
         icon: uptime-kuma
         server: local-docker
         container: uptime-kuma
     - ntfy:
-        href: "http://{{HOMEPAGE_VAR_LAN_IP}}:2586"
+        href: "http://{{HOMEPAGE_VAR_REMOTE_IP}}:2586"
         description: Local alert bus
         icon: ntfy
         server: local-docker

@@ -230,6 +230,7 @@ foreach ($name in @(
     "DATA_ROOT",
     "LAN_IP",
     "LAN_SUBNET",
+    "TAILSCALE_IP",
     "TAILSCALE_SUBNET",
     "FIREWALL_PORTS",
     "WIREGUARD_PRIVATE_KEY",
@@ -353,7 +354,7 @@ Assert-Contains `
     -Pattern 'ufw allow from "\$\{TAILSCALE_SUBNET\}" to any port "\$\{port\}" proto tcp' `
     -Message "Firewall script must allow configured ports from TAILSCALE_SUBNET."
 
-foreach ($port in @("22", "3000", "3001", "5055", "6767", "7878", "8081", "8096", "8989", "9696", "2586")) {
+foreach ($port in @("22", "80", "3000", "3001", "5055", "6767", "7878", "8081", "8096", "8989", "9696", "2586", "11011")) {
     Assert-Contains `
         -Text $firewallDocText `
         -Pattern "\| $port \|" `
@@ -455,6 +456,21 @@ Assert-Contains `
     -Text $homepageServices `
     -Pattern 'url:\s+http://gluetun:8080' `
     -Message "Homepage qBittorrent widget must use gluetun:8080 because qBittorrent shares Gluetun's network namespace."
+
+Assert-Contains `
+    -Text $homepageServices `
+    -Pattern 'href:\s+"http://\{\{HOMEPAGE_VAR_REMOTE_IP\}\}:11011"' `
+    -Message "Homepage services must link Cleanuparr through the remote/Tailscale IP."
+
+Assert-Contains `
+    -Text $homepageServices `
+    -Pattern 'href:\s+"http://\{\{HOMEPAGE_VAR_REMOTE_IP\}\}:3010"' `
+    -Message "Homepage services must link Jellystat through the remote/Tailscale IP."
+
+Assert-Contains `
+    -Text $composeText `
+    -Pattern 'HOMEPAGE_VAR_REMOTE_IP=\$\{TAILSCALE_IP:-\$\{LAN_IP:-192\.168\.1\.10\}\}' `
+    -Message "Homepage compose env must expose a remote/Tailscale IP for clickable links."
 
 Assert-Contains `
     -Text $composeText `

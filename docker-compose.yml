@@ -386,8 +386,9 @@ services:
       - TZ=${TZ:-America/New_York}
       # Required in homepage v0.10+ for security — the host header
       # allowlist for the dashboard's reverse-proxy-aware mode.
-      - HOMEPAGE_ALLOWED_HOSTS=${LAN_IP:-192.168.1.10},${LAN_IP:-192.168.1.10}:3000,localhost,localhost:3000,homepage,caddy
+      - HOMEPAGE_ALLOWED_HOSTS=${LAN_IP:-192.168.1.10},${LAN_IP:-192.168.1.10}:3000,${TAILSCALE_IP:-100.115.252.112},${TAILSCALE_IP:-100.115.252.112}:3000,localhost,localhost:3000,homepage,caddy
       - HOMEPAGE_VAR_LAN_IP=${LAN_IP:-192.168.1.10}
+      - HOMEPAGE_VAR_REMOTE_IP=${TAILSCALE_IP:-${LAN_IP:-192.168.1.10}}
       # API keys piped through for widget data (read from .env)
       - HOMEPAGE_VAR_SONARR_KEY=${SONARR_APIKEY}
       - HOMEPAGE_VAR_RADARR_KEY=${RADARR_APIKEY}
