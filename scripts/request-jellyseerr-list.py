@@ -16,7 +16,7 @@ import time
 from dataclasses import dataclass
 from typing import Any
 from urllib.error import HTTPError, URLError
-from urllib.parse import urlencode
+from urllib.parse import quote, urlencode
 from urllib.request import Request, urlopen
 
 
@@ -115,7 +115,7 @@ def load_rows(path: str) -> list[MovieRow]:
 def jellyseerr_url(base_url: str, path: str, query: dict[str, str] | None = None) -> str:
     url = base_url.rstrip("/") + path
     if query:
-        url += "?" + urlencode(query)
+        url += "?" + urlencode(query, quote_via=quote)
     return url
 
 
