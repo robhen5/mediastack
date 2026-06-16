@@ -25,6 +25,7 @@ Read these first:
 5. `docs/deployment-checklist.md`
 6. `docs/disk-health.md`
 7. `docs/firewall.md`
+8. `docs/server-operations.md`
 
 ## Current State
 
@@ -55,6 +56,30 @@ Read these first:
   `cleanup`-profile gating on qbitmanage + cleanuparr. Any change here must
   be flagged explicitly in the response and reviewed against `docs/SAFETY.md`.
 - Keep `.env`, `config/`, `data/`, media payloads, logs, and backups out of git.
+
+## Target Host Git Pulls
+
+The live Ubuntu host often has local operational edits that block `git pull`.
+Before telling the user to discard anything, inspect both unstaged and staged
+diffs for the blocked file:
+
+```bash
+git status --short
+git diff -- <path>
+git diff --cached -- <path>
+```
+
+Common benign blockers seen on the server:
+
+- mode-only `chmod +x` changes on `scripts/*.sh`
+- local `docker-compose.yml` edits already represented by `.env` or upstream
+- local hotfixes to scripts, such as `scripts/request-jellyseerr-list.py`, made
+  before the same fix was pushed
+
+Only advise `git restore` / `git checkout --` after confirming the local diff
+is already present upstream or is a mode-only/local hotfix the user no longer
+needs. Untracked backup files like `docker-compose.yml.bak-*` do not block
+pulls and can usually be left alone.
 
 ## Validation Expectations
 
