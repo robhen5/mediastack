@@ -59,3 +59,39 @@ python3 scripts/request-jellyseerr-list.py \
 ```
 
 If a row is ambiguous, add its TMDB ID to the CSV `tmdb_id` column and rerun.
+
+## Popular American Films From StartingList Top 500
+
+The extracted source list is stored at:
+
+```text
+docs/lists/popular-american-top500.csv
+```
+
+The Jellyseerr-ready request list is stored at:
+
+```text
+docs/lists/popular-american-top500-jellyseerr.csv
+```
+
+Dry-run this list in chunks because it has more ambiguous titles and overlaps
+with the AFI list:
+
+```bash
+python3 scripts/request-jellyseerr-list.py \
+  --url http://localhost:5055 \
+  --list docs/lists/popular-american-top500-jellyseerr.csv \
+  --limit 25
+```
+
+Apply a reviewed chunk:
+
+```bash
+python3 scripts/request-jellyseerr-list.py \
+  --url http://localhost:5055 \
+  --list docs/lists/popular-american-top500-jellyseerr.csv \
+  --limit 25 \
+  --apply
+```
+
+Continue with `--start-rank` using the `rank` values shown in the output.

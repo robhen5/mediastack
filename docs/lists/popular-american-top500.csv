@@ -1,0 +1,208 @@
+source_rank,title,year,director,country,length,genre,imdb,idtspdt
+1,Citizen Kane,1941,"Welles, Orson",USA,119,Drama-Mystery,IMDb,2425
+2,Vertigo,1958,"Hitchcock, Alfred",USA,128,Thriller-Drama-Mystery,IMDb,7704
+3,2001: A Space Odyssey,1968,"Kubrick, Stanley",UK-USA,139,Science Fiction,IMDb,10165
+6,The Godfather,1972,"Coppola, Francis Ford",USA,175,Drama-Crime,IMDb,11414
+8,Sunrise: A Song of Two Humans,1927,"Murnau, F.W.",USA,110,Romance-Drama-Crime,IMDb,1514
+9,The Searchers,1956,"Ford, John",USA,119,Western,IMDb,6866
+11,Singin' in the Rain,1952,"Donen, Stanley & Gene Kelly",USA,102,Musical-Dance-Comedy,IMDb,5535
+13,Apocalypse Now,1979,"Coppola, Francis Ford",USA,150,War-Drama-Adventure,IMDb,13082
+14,Taxi Driver,1976,"Scorsese, Martin",USA,113,Drama-Crime,IMDb,12567
+24,Psycho,1960,"Hitchcock, Alfred",USA,109,Thriller-Horror,IMDb,8209
+26,City Lights,1931,"Chaplin, Charles",USA,86,Romance-Comedy,IMDb,285
+29,Mulholland Dr.,2001,"Lynch, David",USA-France,147,Mystery-Drama-Thriller,IMDb,20595
+30,The Godfather Part II,1974,"Coppola, Francis Ford",USA,200,Drama-Crime,IMDb,11963
+31,Some Like it Hot,1959,"Wilder, Billy",USA,121,Comedy-Romance,IMDb,7966
+35,Raging Bull,1980,"Scorsese, Martin",USA,129,Drama-Biography-Sport,IMDb,13548
+36,The Night of the Hunter,1955,"Laughton, Charles",USA,92,Drama-Crime-Thriller,IMDb,6473
+37,Casablanca,1942,"Curtiz, Michael",USA,102,War-Romance-Drama,IMDb,2673
+39,Blade Runner,1982,"Scott, Ridley",USA,118,Science Fiction-Thriller-Drama,IMDb,13928
+40,Rear Window,1954,"Hitchcock, Alfred",USA,112,Thriller-Mystery,IMDb,6175
+41,Sunset Blvd.,1950,"Wilder, Billy",USA,110,Drama,IMDb,4879
+42,Touch of Evil,1958,"Welles, Orson",USA,108,Thriller-Crime,IMDb,7693
+50,The General,1926,"Keaton, Buster & Clyde Bruckman",USA,74,Comedy-Adventure,IMDb,560
+51,Modern Times,1936,"Chaplin, Charles",USA,89,Comedy-Romance,IMDb,1020
+56,The Apartment,1960,"Wilder, Billy",USA,125,Drama-Comedy,IMDb,8036
+57,North by Northwest,1959,"Hitchcock, Alfred",USA,136,Thriller-Spy-Romance,IMDb,7921
+59,GoodFellas,1990,"Scorsese, Martin",USA,146,Drama-Crime,IMDb,16501
+63,Rio Bravo,1959,"Hawks, Howard",USA,141,Western,IMDb,7945
+65,Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb,1964,"Kubrick, Stanley",UK-USA,93,War-Comedy,IMDb,9331
+67,Once Upon a Time in the West,1968,"Leone, Sergio",Italy-USA,165,Western,IMDb,10351
+68,Chinatown,1974,"Polanski, Roman",USA,131,Mystery-Crime,IMDb,11929
+71,Do the Right Thing,1989,"Lee, Spike",USA,120,Drama-Comedy,IMDb,16146
+73,A Woman Under the Influence,1974,"Cassavetes, John",USA,155,Drama,IMDb,12122
+78,It's a Wonderful Life,1946,"Capra, Frank",USA,129,Fantasy-Drama-Family,IMDb,3697
+79,The Wild Bunch,1969,"Peckinpah, Sam",USA,135,Western-Action,IMDb,10719
+80,Pulp Fiction,1994,"Tarantino, Quentin",USA,154,Drama-Crime-Comedy,IMDb,17944
+82,Jaws,1975,"Spielberg, Steven",USA,124,Horror-Thriller-Adventure,IMDb,12223
+83,The Shining,1980,"Kubrick, Stanley",USA-UK,142,Horror-Drama,IMDb,13567
+85,Blue Velvet,1986,"Lynch, David",USA,120,Mystery-Crime-Drama,IMDb,15074
+89,The Man Who Shot Liberty Valance,1962,"Ford, John",USA,119,Western,IMDb,8742
+90,Nashville,1975,"Altman, Robert",USA,160,Drama-Music,IMDb,12265
+91,The Magnificent Ambersons,1942,"Welles, Orson",USA,88,Drama,IMDb,2759
+93,The Gold Rush,1925,"Chaplin, Charles",USA,82,Comedy-Adventure-Family,IMDb,593
+99,To Be or Not to Be,1942,"Lubitsch, Ernst",USA,99,War-Comedy,IMDb,2857
+110,Annie Hall,1977,"Allen, Woody",USA,93,Romance-Comedy,IMDb,12595
+113,Once Upon a Time in America,1984,"Leone, Sergio",Italy-USA,229,Drama-Crime,IMDb,14602
+114,Greed,1924,"von Stroheim, Erich",USA,140,Drama,IMDb,619
+115,The Wizard of Oz,1939,"Fleming, Victor",USA,101,Musical-Fantasy-Family,IMDb,2125
+122,Alien,1979,"Scott, Ridley",USA-UK,117,Science Fiction-Horror,IMDb,13071
+123,E.T. The Extra-Terrestrial,1982,"Spielberg, Steven",USA,115,Science Fiction-Family,IMDb,13966
+124,Bringing Up Baby,1938,"Hawks, Howard",USA,102,Romance-Comedy,IMDb,183
+125,Blow-Up,1966,"Antonioni, Michelangelo",UK-Italy-USA,111,Mystery-Drama,IMDb,9657
+127,Notorious,1946,"Hitchcock, Alfred",USA,101,Romance-Thriller-Mystery,IMDb,3740
+129,Intolerance,1916,"Griffith, D.W.",USA,178,History-Drama,IMDb,729
+133,Letter from an Unknown Woman,1948,"Ophüls, Max",USA,90,Romance-Drama,IMDb,4216
+134,All About Eve,1950,"Mankiewicz, Joseph L.",USA,138,Drama,IMDb,4640
+137,Star Wars,1977,"Lucas, George",USA,121,Science Fiction-Fantasy-Adventure,IMDb,12779
+138,Imitation of Life,1959,"Sirk, Douglas",USA,124,Drama-Romance,IMDb,7870
+139,His Girl Friday,1940,"Hawks, Howard",USA,92,Romance-Comedy,IMDb,2237
+141,Gone with the Wind,1939,"Fleming, Victor",USA,222,History-Romance-Drama,IMDb,1968
+143,There Will Be Blood,2007,"Anderson, Paul Thomas",USA,158,Drama,IMDb,25851
+144,My Darling Clementine,1946,"Ford, John",USA,97,Western,IMDb,3729
+147,Wanda,1970,"Loden, Barbara",USA,105,Drama-Crime,IMDb,11059
+150,One Flew Over the Cuckoo's Nest,1975,"Forman, Milos",USA,133,Drama,IMDb,12270
+152,The Conversation,1974,"Coppola, Francis Ford",USA,113,Thriller-Drama-Mystery,IMDb,11937
+153,Killer of Sheep,1977,"Burnett, Charles",USA,83,Drama,IMDb,12699
+155,Days of Heaven,1978,"Malick, Terrence",USA,95,Romance-Drama,IMDb,12821
+157,Double Indemnity,1944,"Wilder, Billy",USA,106,Mystery-Crime-Drama,IMDb,3835
+158,Trouble in Paradise,1932,"Lubitsch, Ernst",USA,83,Romance-Comedy,IMDb,1645
+159,The Deer Hunter,1978,"Cimino, Michael",USA,183,War-Drama,IMDb,12851
+165,Manhattan,1979,"Allen, Woody",USA,96,Romance-Comedy,IMDb,13210
+166,Rosemary's Baby,1968,"Polanski, Roman",USA,136,Thriller-Horror-Drama,IMDb,10377
+168,Badlands,1973,"Malick, Terrence",USA,95,Drama-Crime,IMDb,11623
+170,The Texas Chain Saw Massacre,1974,"Hooper, Tobe",USA,83,Horror-Thriller,IMDb,12088
+174,Raiders of the Lost Ark,1981,"Spielberg, Steven",USA,115,Adventure-Action,IMDb,13840
+175,Only Angels Have Wings,1939,"Hawks, Howard",USA,121,Drama-Adventure-Romance,IMDb,2061
+176,Stagecoach,1939,"Ford, John",USA,96,Western-Adventure-Drama,IMDb,2089
+179,Duck Soup,1933,"McCarey, Leo",USA,70,Comedy,IMDb,440
+180,Close Encounters of the Third Kind,1977,"Spielberg, Steven",USA,135,Science Fiction-Adventure,IMDb,12624
+181,The Birds,1963,"Hitchcock, Alfred",USA,119,Drama-Horror-Mystery,IMDb,8903
+182,Johnny Guitar,1954,"Ray, Nicholas",USA,110,Western-Drama,IMDb,6099
+189,Out of the Past,1947,"Tourneur, Jacques",USA,97,Crime-Drama-Mystery,IMDb,4005
+191,The River,1951,"Renoir, Jean",France-India-USA,99,Romance-Drama,IMDb,5198
+192,The Tree of Life,2011,"Malick, Terrence",USA,139,Drama,IMDb,31066
+198,King Kong,1933,"Cooper, Merian C. & Ernest B. Schoedsack",USA,103,Fantasy-Adventure-Horror,IMDb,786
+203,The Lady Eve,1941,"Sturges, Preston",USA,94,Romance-Comedy,IMDb,2501
+204,On the Waterfront,1954,"Kazan, Elia",USA,108,Drama-Crime,IMDb,6147
+208,The Thing,1982,"Carpenter, John",USA,108,Science Fiction-Action-Horror,IMDb,14129
+210,The Great Dictator,1940,"Chaplin, Charles",USA,128,War-Comedy-Political,IMDb,2229
+211,Magnolia,1999,"Anderson, Paul Thomas",USA,188,Drama,IMDb,19880
+215,Moonlight,2016,"Jenkins, Barry",USA,111,Drama,IMDb,41063
+218,The Quiet Man,1952,"Ford, John",USA,129,Romance-Drama-Comedy,IMDb,5499
+226,The Grapes of Wrath,1940,"Ford, John",USA,129,Drama,IMDb,2228
+227,The Big Lebowski,1998,"Coen, Joel & Ethan Coen",USA-UK,113,Comedy-Crime,IMDb,18769
+228,Eternal Sunshine of the Spotless Mind,2004,"Gondry, Michel",USA,108,Romance-Drama-Comedy,IMDb,21602
+229,The Best Years of Our Lives,1946,"Wyler, William",USA,172,War-Drama,IMDb,3601
+232,Sullivan's Travels,1941,"Sturges, Preston",USA,91,Romance-Comedy,IMDb,2590
+233,Back to the Future,1985,"Zemeckis, Robert",USA,116,Science Fiction-Comedy-Adventure,IMDb,14752
+234,The Matrix,1999,"Wachowski, Lana & Lilly Wachowski",USA-Australia,136,Science Fiction-Action-Adventure,IMDb,19432
+235,McCabe & Mrs. Miller,1971,"Altman, Robert",USA,121,Western-Drama,IMDb,11318
+238,Love Streams,1984,"Cassavetes, John",USA,141,Drama,IMDb,14569
+241,The Crowd,1928,"Vidor, King",USA,104,Drama,IMDb,341
+245,Eraserhead,1977,"Lynch, David",USA,89,Horror-Fantasy,IMDb,12862
+247,In a Lonely Place,1950,"Ray, Nicholas",USA,91,Drama-Mystery,IMDb,4760
+248,The Band Wagon,1953,"Minnelli, Vincente",USA,112,Musical-Dance-Comedy,IMDb,5632
+249,The Graduate,1967,"Nichols, Mike",USA,106,Drama-Comedy-Romance,IMDb,9998
+251,Schindler's List,1993,"Spielberg, Steven",USA,195,War-History-Drama,IMDb,18056
+252,Caché,2005,"Haneke, Michael",France-Austria-Germany-Italy-USA,117,Thriller-Drama,IMDb,23466
+255,The Exorcist,1973,"Friedkin, William",USA,122,Horror,IMDb,11682
+256,Heat,1995,"Mann, Michael",USA,174,Thriller-Drama-Crime,IMDb,17365
+257,Meet Me in St. Louis,1944,"Minnelli, Vincente",USA,113,Musical-Family-Drama,IMDb,3243
+258,The Thin Red Line,1998,"Malick, Terrence",USA,170,War-Drama,IMDb,19377
+260,Daughters of the Dust,1991,"Dash, Julie",USA-UK,112,History-Drama,IMDb,17075
+263,Eyes Wide Shut,1999,"Kubrick, Stanley",USA-UK,159,Drama-Mystery-Thriller,IMDb,19590
+265,Fargo,1996,"Coen, Joel & Ethan Coen",USA,98,Drama-Crime-Comedy,IMDb,17211
+268,The Treasure of the Sierra Madre,1948,"Huston, John",USA,124,Adventure-Drama,IMDb,4329
+271,Red River,1948,"Hawks, Howard",USA,133,Western,IMDb,4269
+272,Tabu,1931,"Murnau, F.W.",USA,82,Romance-Drama-Adventure,IMDb,1533
+277,Sweet Smell of Success,1957,"Mackendrick, Alexander",USA,96,Drama,IMDb,7295
+282,All That Jazz,1979,"Fosse, Bob",USA,123,Musical-Fantasy-Drama,IMDb,13072
+283,Groundhog Day,1993,"Ramis, Harold",USA,103,Romance-Fantasy-Comedy,IMDb,17331
+284,The Shop Around the Corner,1940,"Lubitsch, Ernst",USA,97,Romance-Comedy,IMDb,2334
+285,Paths of Glory,1957,"Kubrick, Stanley",USA,86,War-Drama,IMDb,7223
+294,All That Heaven Allows,1955,"Sirk, Douglas",USA,89,Romance-Drama,IMDb,6282
+296,Cabaret,1972,"Fosse, Bob",USA,128,Musical-Drama-Dance,IMDb,11121
+300,Unforgiven,1992,"Eastwood, Clint",USA,127,Western,IMDb,18346
+301,The Big Sleep,1946,"Hawks, Howard",USA,114,Mystery-Crime,IMDb,3603
+302,Mean Streets,1973,"Scorsese, Martin",USA,110,Drama-Crime,IMDb,11765
+305,The Empire Strikes Back,1980,"Kershner, Irvin",USA,124,Science Fiction-Fantasy-Adventure,IMDb,13397
+306,The Maltese Falcon,1941,"Huston, John",USA,100,Mystery-Crime,IMDb,2519
+313,Freaks,1932,"Browning, Tod",USA,64,Horror-Drama,IMDb,535
+314,Midnight Cowboy,1969,"Schlesinger, John",USA,113,Drama,IMDb,10618
+318,Faces,1968,"Cassavetes, John",USA,130,Drama,IMDb,10251
+320,Amadeus,1984,"Forman, Milos",USA,158,Musical-Biography-Drama,IMDb,14431
+322,The King of Comedy,1982,"Scorsese, Martin",USA,109,Drama-Comedy,IMDb,14269
+326,Monsieur Verdoux,1947,"Chaplin, Charles",USA,123,Crime-Comedy,IMDb,3988
+327,Harold and Maude,1971,"Ashby, Hal",USA,91,Comedy-Drama-Romance,IMDb,11428
+328,Husbands,1970,"Cassavetes, John",USA,138,Drama,IMDb,10840
+333,The Philadelphia Story,1940,"Cukor, George",USA,112,Romance-Comedy,IMDb,2303
+334,Dog Day Afternoon,1975,"Lumet, Sidney",USA,125,Drama-Crime,IMDb,12181
+337,The Kid,1921,"Chaplin, Charles",USA,60,Drama-Comedy-Family,IMDb,782
+339,West Side Story,1961,"Wise, Robert & Jerome Robbins",USA,151,Musical-Dance-Drama,IMDb,8581
+341,Mad Max: Fury Road,2015,"Miller, George",Australia-USA,120,Action-Adventure-Science Fiction,IMDb,38703
+343,Bonnie and Clyde,1967,"Penn, Arthur",USA,111,Drama-Crime-Biography,IMDb,9935
+344,Some Came Running,1958,"Minnelli, Vincente",USA,136,Drama,IMDb,7655
+345,Get Out,2017,"Peele, Jordan",USA-Japan,104,Horror-Mystery-Thriller,IMDb,41557
+347,Broken Blossoms,1919,"Griffith, D.W.",USA,90,Romance-Drama,IMDb,194
+348,Kiss Me Deadly,1955,"Aldrich, Robert",USA,106,Crime-Mystery-Thriller,IMDb,6421
+349,Underground,1995,"Kusturica, Emir",Yugoslavia-France-Germany-Bulgaria-Czech Republic-Hungary-UK-USA,167,War-Drama-Comedy,IMDb,1877
+352,Aliens,1986,"Cameron, James",USA,137,Science Fiction-Horror-Action,IMDb,15043
+353,The Last Picture Show,1971,"Bogdanovich, Peter",USA,118,Drama,IMDb,11299
+354,It Happened One Night,1934,"Capra, Frank",USA,105,Romance-Comedy,IMDb,743
+355,The Elephant Man,1980,"Lynch, David",USA,125,Drama-Biography,IMDb,13396
+357,Opening Night,1977,"Cassavetes, John",USA,144,Drama,IMDb,12729
+362,The Silence of the Lambs,1991,"Demme, Jonathan",USA,118,Crime-Drama-Thriller,IMDb,18104
+363,Night of the Living Dead,1968,"Romero, George A.",USA,96,Horror,IMDb,10343
+366,How Green Was My Valley,1941,"Ford, John",USA,118,Drama,IMDb,2480
+367,Written on the Wind,1956,"Sirk, Douglas",USA,99,Drama,IMDb,6948
+369,Safe,1995,"Haynes, Todd",USA,119,Drama,IMDb,18037
+371,All the President's Men,1976,"Pakula, Alan J.",USA,138,Political-Drama-History,IMDb,12353
+374,Make Way for Tomorrow,1937,"McCarey, Leo",USA,92,Drama,IMDb,932
+375,Heaven's Gate,1980,"Cimino, Michael",USA,219,Western-Drama-History,IMDb,13447
+376,The Killing of a Chinese Bookie,1976,"Cassavetes, John",USA,109,Drama-Crime,IMDb,12466
+381,Marnie,1964,"Hitchcock, Alfred",USA,130,Crime-Drama-Mystery,IMDb,9403
+382,This is Spinal Tap,1984,"Reiner, Rob",USA,82,Comedy-Music,IMDb,14680
+384,Two-Lane Blacktop,1971,"Hellman, Monte",USA,101,Drama,IMDb,11049
+386,An Affair to Remember,1957,"McCarey, Leo",USA,115,Romance-Drama,IMDb,6965
+388,Lost Highway,1997,"Lynch, David",USA-France,134,Mystery-Drama-Thriller,IMDb,1821
+390,Stranger Than Paradise,1984,"Jarmusch, Jim",USA-West Germany,89,Comedy-Drama,IMDb,14658
+398,The Long Goodbye,1973,"Altman, Robert",USA,112,Drama-Crime-Mystery,IMDb,11749
+404,Fantasia,1940,Various Directors,USA,120,Fantasy-Family-Animation,IMDb,2210
+408,The Birth of a Nation,1915,"Griffith, D.W.",USA,187,War-History-Drama,IMDb,133
+409,Dawn of the Dead,1978,"Romero, George A.",USA,126,Horror-Action,IMDb,12820
+410,Crimes and Misdemeanors,1989,"Allen, Woody",USA,104,Drama-Comedy,IMDb,16131
+415,Lost in Translation,2003,"Coppola, Sofia",USA-Japan,102,Romance-Drama-Comedy,IMDb,21404
+418,Snow White and the Seven Dwarfs,1937,"Hand, David",USA,83,Animation-Family-Fantasy,IMDb,1423
+420,Splendor in the Grass,1961,"Kazan, Elia",USA,124,Drama-Romance,IMDb,8538
+425,Network,1976,"Lumet, Sidney",USA,121,Drama,IMDb,12506
+429,The Awful Truth,1937,"McCarey, Leo",USA,92,Romance-Comedy,IMDb,76
+431,Chelsea Girls,1966,"Warhol, Andy",USA,210,Drama-Avant-Garde,IMDb,18525
+432,Bride of Frankenstein,1935,"Whale, James",USA,75,Horror-Science Fiction,IMDb,177
+433,A.I. Artificial Intelligence,2001,"Spielberg, Steven",USA,145,Science Fiction-Drama,IMDb,20351
+437,Casino,1995,"Scorsese, Martin",USA,182,Drama-Crime,IMDb,16754
+439,No Country for Old Men,2007,"Coen, Joel & Ethan Coen",USA,122,Crime-Drama-Thriller,IMDb,25821
+440,Phantom Thread,2017,"Anderson, Paul Thomas",USA-China,130,Drama-Romance,IMDb,42868
+442,A Star is Born,1954,"Cukor, George",USA,154,Musical-Drama,IMDb,6222
+446,Carrie,1976,"De Palma, Brian",USA,97,Horror-Thriller,IMDb,12382
+447,Boogie Nights,1997,"Anderson, Paul Thomas",USA,155,Drama,IMDb,18762
+449,The Shawshank Redemption,1994,"Darabont, Frank",USA,142,Prison-Drama,IMDb,18090
+454,Limelight,1952,"Chaplin, Charles",USA,145,Drama-Comedy,IMDb,5435
+455,The Cameraman,1928,"Keaton, Buster & Edward Sedgwick",USA,69,Romance-Comedy,IMDb,218
+456,The Scarlet Empress,1934,"von Sternberg, Josef",USA,110,History-Drama-Biography,IMDb,1338
+458,The Wind,1928,"Sjöström, Victor",USA,88,Drama,IMDb,1748
+466,Pan's Labyrinth,2006,"del Toro, Guillermo",Spain-Mexico-USA,120,Drama-Fantasy-Thriller,IMDb,24845
+470,Pinocchio,1940,"Sharpsteen, Ben & Hamilton Luske",USA,88,Fantasy-Family-Animation,IMDb,2305
+474,The Dead,1987,"Huston, John",USA,83,Drama,IMDb,15431
+478,Elephant,2003,"Van Sant, Gus",USA,81,Drama,IMDb,21613
+479,Wagon Master,1950,"Ford, John",USA,86,Western,IMDb,4914
+482,High Noon,1952,"Zinnemann, Fred",USA,84,Western,IMDb,5398
+483,To Kill a Mockingbird,1962,"Mulligan, Robert",USA,129,Drama-Crime,IMDb,8843
+484,Talk to Her,2002,"Almodóvar, Pedro",Spain-USA,112,Drama-Mystery-Romance,IMDb,20919
+487,"Steamboat Bill, Jr.",1928,"Keaton, Buster & Charles Reisner",USA,71,Comedy-Adventure,IMDb,1480
+489,Five Easy Pieces,1970,"Rafelson, Bob",USA,98,Drama,IMDb,10807
+490,The Palm Beach Story,1942,"Sturges, Preston",USA,88,Romance-Comedy,IMDb,2797
+492,Fight Club,1999,"Fincher, David",USA-Germany,139,Drama,IMDb,19713
+496,Zama,2017,"Martel, Lucrecia",Argentina-Brazil-Spain-Dominican Republic-France-Netherlands-Mexico-Switzerland-USA-Portugal-Lebanon,115,Drama-History,IMDb,42951
+498,Children of Men,2006,"Cuarón, Alfonso",USA-UK,109,Drama-Science Fiction-Thriller,IMDb,24677
+499,Reservoir Dogs,1992,"Tarantino, Quentin",USA,99,Drama-Crime-Thriller,IMDb,17990
