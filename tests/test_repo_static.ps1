@@ -21,6 +21,9 @@ $restoreScript = Join-Path $repoRoot "scripts/restore-config-test.sh"
 $hardlinkScript = Join-Path $repoRoot "scripts/test-hardlinks.sh"
 $homepageInstallScript = Join-Path $repoRoot "scripts/install-homepage-config.sh"
 $homepageTemplateDir = Join-Path $repoRoot "config-templates/homepage"
+$jellyseerrBulkScript = Join-Path $repoRoot "scripts/request-jellyseerr-list.py"
+$jellyseerrBulkDoc = Join-Path $repoRoot "docs/jellyseerr/bulk-requests.md"
+$afiListCsv = Join-Path $repoRoot "docs/lists/afi-100-years-100-movies.csv"
 
 $composeText = Get-Content -Raw -Path $composePath
 $scriptText = Get-Content -Raw -Path $updateScript
@@ -312,7 +315,10 @@ foreach ($p in @(
     $diskLongTestTimer,
     $restoreScript,
     $hardlinkScript,
-    $homepageInstallScript
+    $homepageInstallScript,
+    $jellyseerrBulkScript,
+    $jellyseerrBulkDoc,
+    $afiListCsv
 )) {
     if (-not (Test-Path -LiteralPath $p)) {
         throw "Missing required safety artifact: $p"
@@ -499,5 +505,21 @@ Assert-Contains `
     -Text $safetyText `
     -Pattern 'Remaining risks' `
     -Message "docs/SAFETY.md must summarize remaining risks after the safety pass."
+
+$jellyseerrBulkText = Get-Content -Raw -Path $jellyseerrBulkScript
+Assert-Contains `
+    -Text $jellyseerrBulkText `
+    -Pattern 'parser\.add_argument\("--apply", action="store_true"' `
+    -Message "Jellyseerr bulk request script must require --apply before creating requests."
+
+Assert-Contains `
+    -Text $jellyseerrBulkText `
+    -Pattern "Mode: \{'APPLY' if args\.apply else 'DRY-RUN'\}" `
+    -Message "Jellyseerr bulk request script must make dry-run/apply mode visible."
+
+$afiRows = Import-Csv -Path $afiListCsv
+if ($afiRows.Count -ne 100) {
+    throw "AFI 100 list must contain exactly 100 movie rows; found $($afiRows.Count)."
+}
 
 Write-Host "Static repository safety checks passed."
