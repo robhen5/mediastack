@@ -209,6 +209,9 @@ Only after the first-deploy profile passes:
 - [ ] Add update notifications with `docker compose --profile updates up -d diun`.
 - [ ] Add Jellyfin stats with `docker compose --profile stats up -d jellystat-db jellystat`.
 - [ ] Add Recyclarr quality syncing with `docker compose --profile quality up -d recyclarr`.
+- [ ] Add Pi-hole only after completing `docs/pihole.md`: reserve `LAN_IP`,
+      verify port 53, start with `APPLY=1 ./scripts/start-pihole.sh`, and prove
+      direct `dig @LAN_IP` queries before changing router DNS.
 - [ ] Add Unpackerr only when archived releases need extraction:
       `docker compose --profile extract up -d unpackerr`.
 - [ ] Add full observability with `--profile observability` only when you also

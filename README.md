@@ -298,5 +298,6 @@ tar -xzf "$BACKUP_ROOT/config-test-$(date +%Y%m%d).tar.gz" -C /tmp/mediastack-re
 - `docs/deployment-checklist.md`: target-host validation and deployment steps
 - `docs/disk-health.md`: SMART checks, ntfy disk alerts, and monthly long tests
 - `docs/firewall.md`: UFW allowlist for LAN/Tailscale-only service access
+- `docs/pihole.md`: opt-in Pi-hole DNS deployment, router cutover, testing, and rollback
 - `docs/risk-register.md`: data-loss and scaling risks
 - `docs/legacy/`: older detailed setup/maintenance notes retained for reference

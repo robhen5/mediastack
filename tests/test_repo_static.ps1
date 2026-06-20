@@ -162,6 +162,7 @@ foreach ($pair in @(
     @{ Service = "cross-seed"; Profile = "cross-seed" },
     @{ Service = "qbitmanage"; Profile = "qbitmanage" },
     @{ Service = "cleanuparr"; Profile = "cleanuparr" }
+    @{ Service = "pihole"; Profile = "dns" }
 )) {
     $pattern = "(?ms)^  $($pair.Service):.*?profiles:\s+\[.*`"$($pair.Profile)`".*\]"
     Assert-Contains -Text $composeText -Pattern $pattern -Message "$($pair.Service) must have explicit profile $($pair.Profile)."
@@ -236,6 +237,7 @@ foreach ($name in @(
     "TAILSCALE_IP",
     "TAILSCALE_SUBNET",
     "FIREWALL_PORTS",
+    "FIREWALL_LAN_DNS_PORTS",
     "WIREGUARD_PRIVATE_KEY",
     "WIREGUARD_ADDRESSES",
     "QBIT_USER",
@@ -247,6 +249,7 @@ foreach ($name in @(
     "JELLYFIN_APIKEY",
     "JELLYSTAT_DB_PASSWORD",
     "JELLYSTAT_JWT_SECRET",
+    "PIHOLE_WEBPASSWORD",
     "NTFY_TOPIC",
     "SMART_DEVICES",
     "SMARTCTL_OPTIONS",
@@ -472,6 +475,31 @@ Assert-Contains `
     -Text $homepageServices `
     -Pattern 'href:\s+"http://\{\{HOMEPAGE_VAR_REMOTE_IP\}\}:3010"' `
     -Message "Homepage services must link Jellystat through the remote/Tailscale IP."
+
+Assert-Contains `
+    -Text $homepageServices `
+    -Pattern 'href:\s+"http://\{\{HOMEPAGE_VAR_REMOTE_IP\}\}:8053/admin/"' `
+    -Message "Homepage services must link Pi-hole through the remote/Tailscale IP."
+
+Assert-Contains `
+    -Text $composeText `
+    -Pattern '"\$\{LAN_IP:-192\.168\.1\.10\}:53:53/udp"' `
+    -Message "Pi-hole DNS must bind UDP 53 specifically to LAN_IP."
+
+Assert-Contains `
+    -Text $composeText `
+    -Pattern 'FTLCONF_dns_listeningMode=ALL' `
+    -Message "Pi-hole must use ALL listening mode on Docker bridge networking."
+
+$firewallScriptText = Get-Content -Raw -Path (Join-Path $repoRoot "scripts/apply-firewall-rules.sh")
+Assert-Contains `
+    -Text $firewallScriptText `
+    -Pattern 'proto udp' `
+    -Message "Firewall helper must allow Pi-hole UDP DNS from the LAN."
+
+if (-not (Test-Path -LiteralPath (Join-Path $repoRoot "scripts/start-pihole.sh"))) {
+    throw "Missing guarded Pi-hole startup script."
+}
 
 Assert-Contains `
     -Text $composeText `

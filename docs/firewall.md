@@ -20,12 +20,14 @@ Tailscale. The current validated posture is:
 | 5055 | Jellyseerr |
 | 6767 | Bazarr |
 | 7878 | Radarr |
+| 8053 | Pi-hole admin UI |
 | 8081 | qBittorrent WebUI through Gluetun |
 | 8096 | Jellyfin |
 | 8989 | Sonarr |
 | 9696 | Prowlarr |
 | 2586 | ntfy |
 | 11011 | Cleanuparr |
+| 53 TCP/UDP | Pi-hole DNS, LAN only |
 
 Allowed source networks:
 
@@ -63,10 +65,15 @@ sudo ufw status verbose
 sudo ufw allow from 192.168.0.0/24 to any port 22 proto tcp
 sudo ufw allow from 100.64.0.0/10 to any port 22 proto tcp
 
-for port in 80 3000 3001 5055 6767 7878 8081 8096 8989 9696 2586 11011; do
+for port in 80 3000 3001 5055 6767 7878 8053 8081 8096 8989 9696 2586 11011; do
   sudo ufw allow from 192.168.0.0/24 to any port "$port" proto tcp
   sudo ufw allow from 100.64.0.0/10 to any port "$port" proto tcp
 done
+
+
+# Pi-hole DNS is LAN-only. The admin UI above remains available over Tailscale.
+sudo ufw allow from 192.168.0.0/24 to any port 53 proto tcp
+sudo ufw allow from 192.168.0.0/24 to any port 53 proto udp
 
 sudo ufw enable
 sudo ufw status verbose

@@ -26,6 +26,7 @@ Read these first:
 6. `docs/disk-health.md`
 7. `docs/firewall.md`
 8. `docs/server-operations.md`
+9. `docs/pihole.md`
 
 ## Current State
 
@@ -40,6 +41,8 @@ Read these first:
   manga, or anime-specific services unless the user explicitly asks.
 - qbitmanage and Cleanuparr are behind the `cleanup` profile and must not be
   enabled casually.
+- Pi-hole is behind the `dns` profile. Keep router DHCP enabled, bind DNS only
+  to `LAN_IP`, and do not change router DNS until direct queries pass.
 
 ## Change Discipline
 

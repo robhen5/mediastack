@@ -11,7 +11,8 @@ DRY_RUN="${DRY_RUN:-1}"
 APPLY="${APPLY:-0}"
 LAN_SUBNET="${LAN_SUBNET:-}"
 TAILSCALE_SUBNET="${TAILSCALE_SUBNET:-100.64.0.0/10}"
-FIREWALL_PORTS="${FIREWALL_PORTS:-22 3000 3001 5055 6767 7878 8081 8096 8989 9696 2586}"
+FIREWALL_PORTS="${FIREWALL_PORTS:-22 80 3000 3001 5055 6767 7878 8053 8081 8096 8989 9696 2586 11011}"
+FIREWALL_LAN_DNS_PORTS="${FIREWALL_LAN_DNS_PORTS:-53}"
 
 is_apply() {
   case "${APPLY}" in
@@ -45,6 +46,7 @@ echo "==> UFW allowlist"
 echo "LAN_SUBNET=${LAN_SUBNET}"
 echo "TAILSCALE_SUBNET=${TAILSCALE_SUBNET}"
 echo "FIREWALL_PORTS=${FIREWALL_PORTS}"
+echo "FIREWALL_LAN_DNS_PORTS=${FIREWALL_LAN_DNS_PORTS}"
 echo
 
 run ufw default deny incoming
@@ -54,6 +56,13 @@ run ufw logging low
 for port in ${FIREWALL_PORTS}; do
   run ufw allow from "${LAN_SUBNET}" to any port "${port}" proto tcp
   run ufw allow from "${TAILSCALE_SUBNET}" to any port "${port}" proto tcp
+done
+
+# Pi-hole DNS is intentionally LAN-only. Do not expose port 53 through the
+# Tailscale allowlist until Tailscale split-DNS is configured deliberately.
+for port in ${FIREWALL_LAN_DNS_PORTS}; do
+  run ufw allow from "${LAN_SUBNET}" to any port "${port}" proto tcp
+  run ufw allow from "${LAN_SUBNET}" to any port "${port}" proto udp
 done
 
 run ufw enable

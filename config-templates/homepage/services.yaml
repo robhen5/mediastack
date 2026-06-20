@@ -93,6 +93,12 @@
         container: cleanuparr
 
 - Monitoring:
+    - Pi-hole:
+        href: "http://{{HOMEPAGE_VAR_REMOTE_IP}}:8053/admin/"
+        description: LAN DNS and ad blocking
+        icon: pi-hole
+        server: local-docker
+        container: pihole
     - Uptime Kuma:
         href: "http://{{HOMEPAGE_VAR_REMOTE_IP}}:3001"
         description: Service health and alerts

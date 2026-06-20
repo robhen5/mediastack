@@ -344,6 +344,34 @@ services:
     restart: unless-stopped
 
   # ================================================================
+  #  NETWORK SERVICES: opt-in LAN DNS
+  # ================================================================
+
+  # ---- Pi-hole: LAN DNS filtering ---------------------------------
+  # Opt-in only: starting the container does not change router/client DNS.
+  # DNS binds only to LAN_IP; the admin UI remains reachable through the
+  # existing LAN/Tailscale UFW allowlists on host port 8053. Caddy already
+  # owns host port 80, so Pi-hole's container port 80 cannot bind there.
+  # Do not enable Pi-hole DHCP here; the home router remains the DHCP server.
+  # Set PIHOLE_WEBPASSWORD in .env and start through scripts/start-pihole.sh.
+  pihole:
+    image: pihole/pihole:latest
+    container_name: pihole
+    profiles: ["optional", "dns"]
+    environment:
+      - TZ=${TZ:-America/New_York}
+      - FTLCONF_webserver_api_password=${PIHOLE_WEBPASSWORD}
+      # Required by Pi-hole when using Docker's default bridge network.
+      - FTLCONF_dns_listeningMode=ALL
+    volumes:
+      - ${CONFIG_ROOT:-/opt/mediastack/config}/pihole:/etc/pihole
+    ports:
+      - "${LAN_IP:-192.168.1.10}:53:53/tcp"
+      - "${LAN_IP:-192.168.1.10}:53:53/udp"
+      - "8053:80/tcp"
+    restart: unless-stopped
+
+  # ================================================================
   #  POLISH LAYER — Phase 7 (Caddy reverse proxy + Homepage dashboard)
   # ================================================================
 
