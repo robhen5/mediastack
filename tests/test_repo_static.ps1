@@ -25,6 +25,8 @@ $jellyseerrBulkScript = Join-Path $repoRoot "scripts/request-jellyseerr-list.py"
 $jellyseerrBulkDoc = Join-Path $repoRoot "docs/jellyseerr/bulk-requests.md"
 $afiListCsv = Join-Path $repoRoot "docs/lists/afi-100-years-100-movies.csv"
 $nicolasCageListCsv = Join-Path $repoRoot "docs/lists/nicolas-cage-filmography.csv"
+$johnWayneListCsv = Join-Path $repoRoot "docs/lists/john-wayne-filmography.csv"
+$johnWayneUnavailableCsv = Join-Path $repoRoot "docs/lists/john-wayne-unavailable-in-tmdb.csv"
 
 $composeText = Get-Content -Raw -Path $composePath
 $scriptText = Get-Content -Raw -Path $updateScript
@@ -564,6 +566,26 @@ if ($missingCageTmdbIds.Count -ne 0) {
 $duplicateCageTmdbIds = $nicolasCageRows | Group-Object tmdb_id | Where-Object { $_.Count -gt 1 }
 if ($duplicateCageTmdbIds.Count -ne 0) {
     throw "Nicolas Cage list contains duplicate TMDB IDs."
+}
+
+$johnWayneRows = Import-Csv -Path $johnWayneListCsv
+if ($johnWayneRows.Count -ne 171) {
+    throw "John Wayne request list must contain exactly 171 TMDB-resolvable films; found $($johnWayneRows.Count)."
+}
+
+$invalidJohnWayneIds = $johnWayneRows | Where-Object { -not $_.tmdb_id -or $_.tmdb_id -notmatch '^\d+$' }
+if ($invalidJohnWayneIds.Count -ne 0) {
+    throw "Every requestable John Wayne row must have a numeric TMDB ID."
+}
+
+$duplicateJohnWayneIds = $johnWayneRows | Group-Object tmdb_id | Where-Object { $_.Count -gt 1 }
+if ($duplicateJohnWayneIds.Count -ne 0) {
+    throw "John Wayne request list contains duplicate TMDB IDs."
+}
+
+$johnWayneUnavailableRows = Import-Csv -Path $johnWayneUnavailableCsv
+if ($johnWayneUnavailableRows.Count -ne 2) {
+    throw "John Wayne unavailable list must preserve exactly two non-TMDB film appearances."
 }
 
 Write-Host "Static repository safety checks passed."

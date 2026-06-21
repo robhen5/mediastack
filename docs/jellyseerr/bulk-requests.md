@@ -127,3 +127,33 @@ python3 scripts/request-jellyseerr-list.py \
 Jellyseerr/Radarr will monitor dated and undated upcoming films until releases
 become available. Already available or previously requested films are safe to
 rerun through the request endpoint.
+
+## John Wayne Filmography
+
+The John Wayne request list contains 171 TMDB-resolvable film appearances,
+including credited and uncredited roles, shorts, documentaries, and the stock
+audio appearance listed in his filmography. Three television episodes are
+excluded. Two additional film appearances with no TMDB entry are preserved in
+`john-wayne-unavailable-in-tmdb.csv` because Jellyseerr cannot request them.
+
+```text
+docs/lists/john-wayne-filmography.csv
+docs/lists/john-wayne-unavailable-in-tmdb.csv
+```
+
+Dry-run the full requestable list:
+
+```bash
+python3 scripts/request-jellyseerr-list.py \
+  --url http://localhost:5055 \
+  --list docs/lists/john-wayne-filmography.csv
+```
+
+Apply after reviewing the dry-run:
+
+```bash
+python3 scripts/request-jellyseerr-list.py \
+  --url http://localhost:5055 \
+  --list docs/lists/john-wayne-filmography.csv \
+  --apply
+```
