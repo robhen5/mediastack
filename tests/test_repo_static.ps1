@@ -24,6 +24,7 @@ $homepageTemplateDir = Join-Path $repoRoot "config-templates/homepage"
 $jellyseerrBulkScript = Join-Path $repoRoot "scripts/request-jellyseerr-list.py"
 $jellyseerrBulkDoc = Join-Path $repoRoot "docs/jellyseerr/bulk-requests.md"
 $afiListCsv = Join-Path $repoRoot "docs/lists/afi-100-years-100-movies.csv"
+$nicolasCageListCsv = Join-Path $repoRoot "docs/lists/nicolas-cage-filmography.csv"
 
 $composeText = Get-Content -Raw -Path $composePath
 $scriptText = Get-Content -Raw -Path $updateScript
@@ -548,6 +549,21 @@ Assert-Contains `
 $afiRows = Import-Csv -Path $afiListCsv
 if ($afiRows.Count -ne 100) {
     throw "AFI 100 list must contain exactly 100 movie rows; found $($afiRows.Count)."
+}
+
+$nicolasCageRows = Import-Csv -Path $nicolasCageListCsv
+if ($nicolasCageRows.Count -ne 120) {
+    throw "Nicolas Cage list must contain exactly 120 appearance rows; found $($nicolasCageRows.Count)."
+}
+
+$missingCageTmdbIds = $nicolasCageRows | Where-Object { -not $_.tmdb_id }
+if ($missingCageTmdbIds.Count -ne 0) {
+    throw "Every Nicolas Cage row must have a TMDB ID."
+}
+
+$duplicateCageTmdbIds = $nicolasCageRows | Group-Object tmdb_id | Where-Object { $_.Count -gt 1 }
+if ($duplicateCageTmdbIds.Count -ne 0) {
+    throw "Nicolas Cage list contains duplicate TMDB IDs."
 }
 
 Write-Host "Static repository safety checks passed."

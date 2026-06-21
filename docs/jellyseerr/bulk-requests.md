@@ -95,3 +95,35 @@ python3 scripts/request-jellyseerr-list.py \
 ```
 
 Continue with `--start-rank` using the `rank` values shown in the output.
+
+## Nicolas Cage Filmography
+
+The Nicolas Cage list contains 120 unique film appearances, including voice
+roles, cameos, documentaries in which he appears or narrates, and announced
+future films. Producer-only credits without a Cage appearance are excluded.
+Every row includes a TMDB ID to avoid ambiguous title/year matching.
+
+```text
+docs/lists/nicolas-cage-filmography.csv
+```
+
+Dry-run the full list:
+
+```bash
+python3 scripts/request-jellyseerr-list.py \
+  --url http://localhost:5055 \
+  --list docs/lists/nicolas-cage-filmography.csv
+```
+
+Apply only after reviewing the dry-run:
+
+```bash
+python3 scripts/request-jellyseerr-list.py \
+  --url http://localhost:5055 \
+  --list docs/lists/nicolas-cage-filmography.csv \
+  --apply
+```
+
+Jellyseerr/Radarr will monitor dated and undated upcoming films until releases
+become available. Already available or previously requested films are safe to
+rerun through the request endpoint.
