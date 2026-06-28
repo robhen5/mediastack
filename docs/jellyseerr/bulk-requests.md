@@ -157,3 +157,33 @@ python3 scripts/request-jellyseerr-list.py \
   --list docs/lists/john-wayne-filmography.csv \
   --apply
 ```
+
+## Academy Award Best Picture Nominees
+
+The Best Picture nominee list contains all 621 films listed in the Academy
+Award for Best Picture table, winners included, through the 98th ceremony. Every
+row includes a TMDB ID to avoid ambiguous title/year matching.
+
+```text
+docs/lists/best-picture-nominees.csv
+```
+
+Dry-run the full requestable list:
+
+```bash
+python3 scripts/request-jellyseerr-list.py \
+  --url http://localhost:5055 \
+  --list docs/lists/best-picture-nominees.csv
+```
+
+Apply after reviewing the dry-run:
+
+```bash
+python3 scripts/request-jellyseerr-list.py \
+  --url http://localhost:5055 \
+  --list docs/lists/best-picture-nominees.csv \
+  --apply
+```
+
+For a large queue, prefer batches with `--limit` and `--start-rank` so the HDD
+does not get flooded with searches/imports all at once.

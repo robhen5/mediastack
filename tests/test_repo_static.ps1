@@ -27,6 +27,7 @@ $afiListCsv = Join-Path $repoRoot "docs/lists/afi-100-years-100-movies.csv"
 $nicolasCageListCsv = Join-Path $repoRoot "docs/lists/nicolas-cage-filmography.csv"
 $johnWayneListCsv = Join-Path $repoRoot "docs/lists/john-wayne-filmography.csv"
 $johnWayneUnavailableCsv = Join-Path $repoRoot "docs/lists/john-wayne-unavailable-in-tmdb.csv"
+$bestPictureNomineesCsv = Join-Path $repoRoot "docs/lists/best-picture-nominees.csv"
 
 $composeText = Get-Content -Raw -Path $composePath
 $scriptText = Get-Content -Raw -Path $updateScript
@@ -586,6 +587,21 @@ if ($duplicateJohnWayneIds.Count -ne 0) {
 $johnWayneUnavailableRows = Import-Csv -Path $johnWayneUnavailableCsv
 if ($johnWayneUnavailableRows.Count -ne 2) {
     throw "John Wayne unavailable list must preserve exactly two non-TMDB film appearances."
+}
+
+$bestPictureRows = Import-Csv -Path $bestPictureNomineesCsv
+if ($bestPictureRows.Count -ne 621) {
+    throw "Best Picture nominee list must contain exactly 621 movie rows; found $($bestPictureRows.Count)."
+}
+
+$invalidBestPictureIds = $bestPictureRows | Where-Object { -not $_.tmdb_id -or $_.tmdb_id -notmatch '^\d+$' }
+if ($invalidBestPictureIds.Count -ne 0) {
+    throw "Every Best Picture nominee row must have a numeric TMDB ID."
+}
+
+$duplicateBestPictureRanks = $bestPictureRows | Group-Object rank | Where-Object { $_.Count -gt 1 }
+if ($duplicateBestPictureRanks.Count -ne 0) {
+    throw "Best Picture nominee list contains duplicate rank values."
 }
 
 Write-Host "Static repository safety checks passed."
