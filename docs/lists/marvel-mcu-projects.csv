@@ -1,0 +1,80 @@
+rank,title,year,media_type,tmdb_id,notes
+1,Iron Man,2008,movie,1726,Marvel Studios MCU film
+2,The Incredible Hulk,2008,movie,1724,Marvel Studios MCU film
+3,Iron Man 2,2010,movie,10138,Marvel Studios MCU film
+4,Thor,2011,movie,10195,Marvel Studios MCU film
+5,Captain America: The First Avenger,2011,movie,1771,Marvel Studios MCU film
+6,The Avengers,2012,movie,24428,Marvel Studios MCU film
+7,Iron Man 3,2013,movie,68721,Marvel Studios MCU film
+8,Thor: The Dark World,2013,movie,76338,Marvel Studios MCU film
+9,Captain America: The Winter Soldier,2014,movie,100402,Marvel Studios MCU film
+10,Guardians of the Galaxy,2014,movie,118340,Marvel Studios MCU film
+11,Avengers: Age of Ultron,2015,movie,99861,Marvel Studios MCU film
+12,Ant-Man,2015,movie,102899,Marvel Studios MCU film
+13,Captain America: Civil War,2016,movie,271110,Marvel Studios MCU film
+14,Doctor Strange,2016,movie,284052,Marvel Studios MCU film
+15,Guardians of the Galaxy Vol. 2,2017,movie,283995,Marvel Studios MCU film
+16,Spider-Man: Homecoming,2017,movie,315635,Marvel Studios MCU film
+17,Thor: Ragnarok,2017,movie,284053,Marvel Studios MCU film
+18,Black Panther,2018,movie,284054,Marvel Studios MCU film
+19,Avengers: Infinity War,2018,movie,299536,Marvel Studios MCU film
+20,Ant-Man and the Wasp,2018,movie,363088,Marvel Studios MCU film
+21,Captain Marvel,2019,movie,299537,Marvel Studios MCU film
+22,Avengers: Endgame,2019,movie,299534,Marvel Studios MCU film
+23,Spider-Man: Far From Home,2019,movie,429617,Marvel Studios MCU film
+24,Black Widow,2021,movie,497698,Marvel Studios MCU film
+25,Shang-Chi and the Legend of the Ten Rings,2021,movie,566525,Marvel Studios MCU film
+26,Eternals,2021,movie,524434,Marvel Studios MCU film
+27,Spider-Man: No Way Home,2021,movie,634649,Marvel Studios MCU film
+28,Doctor Strange in the Multiverse of Madness,2022,movie,453395,Marvel Studios MCU film
+29,Thor: Love and Thunder,2022,movie,616037,Marvel Studios MCU film
+30,Black Panther: Wakanda Forever,2022,movie,505642,Marvel Studios MCU film
+31,Ant-Man and the Wasp: Quantumania,2023,movie,640146,Marvel Studios MCU film
+32,Guardians of the Galaxy Vol. 3,2023,movie,447365,Marvel Studios MCU film
+33,The Marvels,2023,movie,609681,Marvel Studios MCU film
+34,Deadpool & Wolverine,2024,movie,533535,Marvel Studios MCU film
+35,Captain America: Brave New World,2025,movie,822119,Marvel Studios MCU film
+36,Thunderbolts*,2025,movie,986056,Marvel Studios MCU film
+37,The Fantastic Four: First Steps,2025,movie,617126,Marvel Studios MCU film
+38,Spider-Man: Brand New Day,2026,movie,969681,Marvel Studios MCU film
+39,Avengers: Doomsday,2026,movie,1003596,Marvel Studios MCU film
+40,Avengers: Secret Wars,2027,movie,1003598,Marvel Studios MCU film
+41,Armor Wars,TBA,movie,1573193,Marvel Studios MCU film
+42,Blade,TBA,movie,1715017,Marvel Studios MCU film
+43,Werewolf by Night,2022,movie,894205,Marvel Studios Special Presentation
+44,The Guardians of the Galaxy Holiday Special,2022,movie,774752,Marvel Studios Special Presentation
+45,The Consultant,2011,movie,76122,Marvel One-Shot
+46,A Funny Thing Happened on the Way to Thor's Hammer,2011,movie,76535,Marvel One-Shot
+47,Item 47,2012,movie,119569,Marvel One-Shot
+48,Agent Carter,2013,movie,211387,Marvel One-Shot
+49,All Hail the King,2014,movie,253980,Marvel One-Shot
+50,The Punisher: One Last Kill,2026,movie,1439930,Marvel Television Special Presentation
+51,Agent Carter,2015,tv,61550,Marvel Television MCU series
+52,Agents of S.H.I.E.L.D.,2013,tv,1403,Marvel Television MCU series
+53,Daredevil,2015,tv,61889,Marvel Netflix Defenders series
+54,Jessica Jones,2015,tv,38472,Marvel Netflix Defenders series
+55,Luke Cage,2016,tv,62126,Marvel Netflix Defenders series
+56,Iron Fist,2017,tv,62127,Marvel Netflix Defenders series
+57,The Defenders,2017,tv,62285,Marvel Netflix Defenders crossover series
+58,The Punisher,2017,tv,67178,Marvel Netflix Defenders series
+59,Inhumans,2017,tv,68716,Marvel Television MCU-era series
+60,WandaVision,2021,tv,85271,Marvel Studios Disney+ series
+61,The Falcon and the Winter Soldier,2021,tv,88396,Marvel Studios Disney+ series
+62,Loki,2021,tv,84958,Marvel Studios Disney+ series
+63,What If...?,2021,tv,91363,Marvel Studios animated series
+64,Hawkeye,2021,tv,88329,Marvel Studios Disney+ series
+65,Moon Knight,2022,tv,92749,Marvel Studios Disney+ series
+66,Ms. Marvel,2022,tv,92782,Marvel Studios Disney+ series
+67,She-Hulk: Attorney at Law,2022,tv,92783,Marvel Studios Disney+ series
+68,I Am Groot,2022,tv,132712,Marvel Studios shorts series
+69,Secret Invasion,2023,tv,114472,Marvel Studios Disney+ series
+70,Echo,2024,tv,122226,Marvel Studios Spotlight series
+71,X-Men '97,2024,tv,138502,Marvel Animation series tied to MCU Multiverse Saga
+72,Agatha All Along,2024,tv,138501,Marvel Studios Disney+ series
+73,Your Friendly Neighborhood Spider-Man,2025,tv,138503,Marvel Animation series
+74,Daredevil: Born Again,2025,tv,202555,Marvel Television continuation of Netflix Daredevil
+75,Ironheart,2025,tv,114471,Marvel Studios Disney+ series
+76,Eyes of Wakanda,2025,tv,241388,Marvel Animation series
+77,Marvel Zombies,2025,tv,138505,Marvel Animation series
+78,Wonder Man,2026,tv,198178,Marvel Television series
+79,VisionQuest,2026,tv,213375,Marvel Television series

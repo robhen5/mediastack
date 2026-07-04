@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Request a CSV movie list through Jellyseerr.
+"""Request a CSV media list through Jellyseerr.
 
 Dry-run is the default. Use --apply to create requests.
 """
@@ -30,6 +30,7 @@ class MovieRow:
     year: str
     tmdb_id: str
     notes: str
+    media_type: str = "movie"
 
 
 def normalize_title(value: str) -> str:
@@ -58,6 +59,27 @@ def media_status(result: dict[str, Any]) -> str:
     if status is None:
         return "not_requested"
     return str(status)
+
+
+def tv_seasons(media_id: int, args: argparse.Namespace) -> list[int]:
+    status, payload = request_json(
+        "GET",
+        jellyseerr_url(args.url, f"/api/v1/tv/{media_id}"),
+        args.api_key,
+        args.timeout,
+    )
+    if status != 200:
+        raise RuntimeError(f"TV details HTTP {status}: {payload}")
+
+    seasons = []
+    for season in payload.get("seasons", []):
+        season_number = season.get("seasonNumber")
+        if season_number is None:
+            continue
+        if season_number == 0 and not args.include_specials:
+            continue
+        seasons.append(int(season_number))
+    return sorted(set(seasons))
 
 
 def request_json(
@@ -107,6 +129,7 @@ def load_rows(path: str) -> list[MovieRow]:
                     year=(item.get("year") or "").strip(),
                     tmdb_id=(item.get("tmdb_id") or "").strip(),
                     notes=(item.get("notes") or "").strip(),
+                    media_type=(item.get("media_type") or "movie").strip().lower(),
                 )
             )
         return rows
@@ -120,8 +143,12 @@ def jellyseerr_url(base_url: str, path: str, query: dict[str, str] | None = None
 
 
 def search_movie(row: MovieRow, args: argparse.Namespace) -> tuple[str, dict[str, Any] | None, str]:
+    if row.media_type not in {"movie", "tv"}:
+        return "invalid_media_type", None, f"expected media_type movie or tv, got {row.media_type!r}"
+
     if row.tmdb_id:
-        return "tmdb_id", {"id": int(row.tmdb_id), "title": row.title, "releaseDate": row.year}, ""
+        date_key = "releaseDate" if row.media_type == "movie" else "firstAirDate"
+        return "tmdb_id", {"id": int(row.tmdb_id), "title": row.title, date_key: row.year}, ""
 
     status, payload = request_json(
         "GET",
@@ -132,7 +159,7 @@ def search_movie(row: MovieRow, args: argparse.Namespace) -> tuple[str, dict[str
     if status != 200:
         return "search_error", None, f"search HTTP {status}: {payload}"
 
-    results = [r for r in payload.get("results", []) if r.get("mediaType") == "movie"]
+    results = [r for r in payload.get("results", []) if r.get("mediaType") == row.media_type]
     wanted_title = normalize_title(row.title)
 
     exact = [
@@ -163,7 +190,12 @@ def search_movie(row: MovieRow, args: argparse.Namespace) -> tuple[str, dict[str
 
 def request_movie(row: MovieRow, match: dict[str, Any], args: argparse.Namespace) -> tuple[str, str]:
     tmdb_id = int(match["id"])
-    body = {"mediaType": "movie", "mediaId": tmdb_id}
+    body = {"mediaType": row.media_type, "mediaId": tmdb_id}
+    if row.media_type == "tv":
+        seasons = tv_seasons(tmdb_id, args)
+        if not seasons:
+            return "skipped", "no requestable TV seasons found"
+        body["seasons"] = seasons
     if args.server_id is not None:
         body["serverId"] = args.server_id
     if args.profile_id is not None:
@@ -203,6 +235,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--server-id", type=int)
     parser.add_argument("--profile-id", type=int)
     parser.add_argument("--root-folder")
+    parser.add_argument(
+        "--include-specials",
+        action="store_true",
+        help="Include TV season 0 specials when requesting TV rows.",
+    )
     return parser.parse_args()
 
 
@@ -241,13 +278,13 @@ def main() -> int:
                 failures += 1
 
             print(
-                f"[{row.rank}] {action.upper()} {row.title} ({row.year}) -> "
+                f"[{row.rank}] {action.upper()} {row.title} ({row.year}) [{row.media_type}] -> "
                 f"{name} ({year}) tmdb={match['id']} status={status} - {message}"
             )
             if detail:
                 print(f"      note: {detail}")
             time.sleep(args.sleep)
-        except (URLError, TimeoutError, ValueError) as exc:
+        except (RuntimeError, URLError, TimeoutError, ValueError) as exc:
             failures += 1
             print(f"[{row.rank}] ERROR {row.title} ({row.year}) - {exc}")
 

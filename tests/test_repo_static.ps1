@@ -28,6 +28,8 @@ $nicolasCageListCsv = Join-Path $repoRoot "docs/lists/nicolas-cage-filmography.c
 $johnWayneListCsv = Join-Path $repoRoot "docs/lists/john-wayne-filmography.csv"
 $johnWayneUnavailableCsv = Join-Path $repoRoot "docs/lists/john-wayne-unavailable-in-tmdb.csv"
 $bestPictureNomineesCsv = Join-Path $repoRoot "docs/lists/best-picture-nominees.csv"
+$marvelMcuProjectsCsv = Join-Path $repoRoot "docs/lists/marvel-mcu-projects.csv"
+$marvelMcuUnavailableCsv = Join-Path $repoRoot "docs/lists/marvel-mcu-unavailable-in-tmdb.csv"
 
 $composeText = Get-Content -Raw -Path $composePath
 $scriptText = Get-Content -Raw -Path $updateScript
@@ -549,6 +551,16 @@ Assert-Contains `
     -Pattern "Mode: \{'APPLY' if args\.apply else 'DRY-RUN'\}" `
     -Message "Jellyseerr bulk request script must make dry-run/apply mode visible."
 
+Assert-Contains `
+    -Text $jellyseerrBulkText `
+    -Pattern 'media_type.*movie' `
+    -Message "Jellyseerr bulk request script must default CSV rows to movie media_type."
+
+Assert-Contains `
+    -Text $jellyseerrBulkText `
+    -Pattern 'body\["seasons"\] = seasons' `
+    -Message "Jellyseerr bulk request script must include seasons for TV requests."
+
 $afiRows = Import-Csv -Path $afiListCsv
 if ($afiRows.Count -ne 100) {
     throw "AFI 100 list must contain exactly 100 movie rows; found $($afiRows.Count)."
@@ -602,6 +614,46 @@ if ($invalidBestPictureIds.Count -ne 0) {
 $duplicateBestPictureRanks = $bestPictureRows | Group-Object rank | Where-Object { $_.Count -gt 1 }
 if ($duplicateBestPictureRanks.Count -ne 0) {
     throw "Best Picture nominee list contains duplicate rank values."
+}
+
+$marvelRows = Import-Csv -Path $marvelMcuProjectsCsv
+if ($marvelRows.Count -ne 79) {
+    throw "Marvel MCU project list must contain exactly 79 requestable rows; found $($marvelRows.Count)."
+}
+
+$invalidMarvelIds = $marvelRows | Where-Object { -not $_.tmdb_id -or $_.tmdb_id -notmatch '^\d+$' }
+if ($invalidMarvelIds.Count -ne 0) {
+    throw "Every requestable Marvel row must have a numeric TMDB ID."
+}
+
+$invalidMarvelMediaTypes = $marvelRows | Where-Object { $_.media_type -notin @("movie", "tv") }
+if ($invalidMarvelMediaTypes.Count -ne 0) {
+    throw "Every requestable Marvel row must use media_type movie or tv."
+}
+
+$marvelTvRows = $marvelRows | Where-Object { $_.media_type -eq "tv" }
+if ($marvelTvRows.Count -lt 1) {
+    throw "Marvel MCU project list must include TV rows."
+}
+
+$requiredMarvelTitles = @(
+    "Agents of S.H.I.E.L.D.",
+    "Daredevil",
+    "Jessica Jones",
+    "Luke Cage",
+    "Iron Fist",
+    "The Defenders",
+    "The Punisher"
+)
+foreach ($title in $requiredMarvelTitles) {
+    if (-not ($marvelRows | Where-Object { $_.title -eq $title })) {
+        throw "Marvel MCU project list is missing required title: $title"
+    }
+}
+
+$marvelUnavailableRows = Import-Csv -Path $marvelMcuUnavailableCsv
+if ($marvelUnavailableRows.Count -ne 3) {
+    throw "Marvel MCU unavailable list must preserve exactly three not-yet-requestable announced projects."
 }
 
 Write-Host "Static repository safety checks passed."

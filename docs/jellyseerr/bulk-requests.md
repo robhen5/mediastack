@@ -187,3 +187,39 @@ python3 scripts/request-jellyseerr-list.py \
 
 For a large queue, prefer batches with `--limit` and `--start-rank` so the HDD
 does not get flooded with searches/imports all at once.
+
+## Marvel MCU Projects
+
+The Marvel MCU project list contains requestable MCU films, Marvel Studios
+specials, Marvel One-Shots, Marvel Studios/Marvel Television series,
+`Agents of S.H.I.E.L.D.`, and the Netflix/Defenders shows. The list supports
+both movies and TV through the `media_type` column.
+
+```text
+docs/lists/marvel-mcu-projects.csv
+docs/lists/marvel-mcu-unavailable-in-tmdb.csv
+```
+
+The unavailable CSV preserves announced projects that do not yet have stable
+TMDB entries, so the main list can be dry-run and applied without known dead
+rows.
+
+Dry-run the full requestable list:
+
+```bash
+python3 scripts/request-jellyseerr-list.py \
+  --url http://localhost:5055 \
+  --list docs/lists/marvel-mcu-projects.csv
+```
+
+Apply after reviewing the dry-run:
+
+```bash
+python3 scripts/request-jellyseerr-list.py \
+  --url http://localhost:5055 \
+  --list docs/lists/marvel-mcu-projects.csv \
+  --apply
+```
+
+TV rows request all regular seasons by default. Add `--include-specials` only
+if you also want Jellyseerr to request TV season 0 specials.
