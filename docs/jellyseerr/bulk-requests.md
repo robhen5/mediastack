@@ -223,3 +223,72 @@ python3 scripts/request-jellyseerr-list.py \
 
 TV rows request all regular seasons by default. Add `--include-specials` only
 if you also want Jellyseerr to request TV season 0 specials.
+
+## Alfred Hitchcock and Best Actor Nomination Lists
+
+These lists are generated from Wikidata into Jellyseerr-ready CSV files. The
+generator only writes CSV files; it does not create Jellyseerr requests.
+
+```text
+scripts/generate-jellyseerr-curated-lists.py
+docs/lists/alfred-hitchcock-filmography.csv
+docs/lists/alfred-hitchcock-unavailable-in-tmdb.csv
+docs/lists/best-actor-nominated-films.csv
+docs/lists/best-actor-nominated-films-unavailable-in-tmdb.csv
+```
+
+Generate both lists:
+
+```bash
+python3 scripts/generate-jellyseerr-curated-lists.py
+```
+
+If Wikidata is rate-limiting, generate one list at a time:
+
+```bash
+python3 scripts/generate-jellyseerr-curated-lists.py --list hitchcock
+```
+
+```bash
+python3 scripts/generate-jellyseerr-curated-lists.py --list best-actor
+```
+
+Dry-run Hitchcock:
+
+```bash
+python3 scripts/request-jellyseerr-list.py \
+  --url http://localhost:5055 \
+  --list docs/lists/alfred-hitchcock-filmography.csv
+```
+
+Apply Hitchcock after reviewing the dry-run:
+
+```bash
+python3 scripts/request-jellyseerr-list.py \
+  --url http://localhost:5055 \
+  --list docs/lists/alfred-hitchcock-filmography.csv \
+  --apply
+```
+
+Dry-run the Best Actor nomination film list:
+
+```bash
+python3 scripts/request-jellyseerr-list.py \
+  --url http://localhost:5055 \
+  --list docs/lists/best-actor-nominated-films.csv
+```
+
+Apply in batches after reviewing the dry-run:
+
+```bash
+python3 scripts/request-jellyseerr-list.py \
+  --url http://localhost:5055 \
+  --list docs/lists/best-actor-nominated-films.csv \
+  --limit 25 \
+  --apply
+```
+
+Continue with `--start-rank` using the rank values shown in the output. The
+Best Actor list overlaps heavily with the Best Picture list, so already
+available or previously requested films are expected and safe to rerun through
+the request endpoint.

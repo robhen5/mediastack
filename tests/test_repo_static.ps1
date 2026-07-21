@@ -22,6 +22,7 @@ $hardlinkScript = Join-Path $repoRoot "scripts/test-hardlinks.sh"
 $homepageInstallScript = Join-Path $repoRoot "scripts/install-homepage-config.sh"
 $homepageTemplateDir = Join-Path $repoRoot "config-templates/homepage"
 $jellyseerrBulkScript = Join-Path $repoRoot "scripts/request-jellyseerr-list.py"
+$jellyseerrListGenerator = Join-Path $repoRoot "scripts/generate-jellyseerr-curated-lists.py"
 $jellyseerrBulkDoc = Join-Path $repoRoot "docs/jellyseerr/bulk-requests.md"
 $afiListCsv = Join-Path $repoRoot "docs/lists/afi-100-years-100-movies.csv"
 $nicolasCageListCsv = Join-Path $repoRoot "docs/lists/nicolas-cage-filmography.csv"
@@ -326,6 +327,7 @@ foreach ($p in @(
     $hardlinkScript,
     $homepageInstallScript,
     $jellyseerrBulkScript,
+    $jellyseerrListGenerator,
     $jellyseerrBulkDoc,
     $afiListCsv
 )) {
@@ -560,6 +562,38 @@ Assert-Contains `
     -Text $jellyseerrBulkText `
     -Pattern 'body\["seasons"\] = seasons' `
     -Message "Jellyseerr bulk request script must include seasons for TV requests."
+
+$jellyseerrListGeneratorText = Get-Content -Raw -Path $jellyseerrListGenerator
+Assert-Contains `
+    -Text $jellyseerrListGeneratorText `
+    -Pattern 'https://query\.wikidata\.org/sparql' `
+    -Message "Curated list generator must document its Wikidata SPARQL source."
+
+Assert-Contains `
+    -Text $jellyseerrListGeneratorText `
+    -Pattern 'alfred-hitchcock-filmography\.csv' `
+    -Message "Curated list generator must write the Alfred Hitchcock request list."
+
+Assert-Contains `
+    -Text $jellyseerrListGeneratorText `
+    -Pattern 'best-actor-nominated-films\.csv' `
+    -Message "Curated list generator must write the Best Actor nomination request list."
+
+Assert-NotContains `
+    -Text $jellyseerrListGeneratorText `
+    -Pattern '/api/v1/request' `
+    -Message "Curated list generator must not create Jellyseerr requests directly."
+
+$jellyseerrBulkDocText = Get-Content -Raw -Path $jellyseerrBulkDoc
+Assert-Contains `
+    -Text $jellyseerrBulkDocText `
+    -Pattern 'generate-jellyseerr-curated-lists\.py' `
+    -Message "Bulk request docs must explain how to generate curated lists."
+
+Assert-Contains `
+    -Text $jellyseerrBulkDocText `
+    -Pattern 'best-actor-nominated-films\.csv' `
+    -Message "Bulk request docs must include Best Actor nomination request commands."
 
 $afiRows = Import-Csv -Path $afiListCsv
 if ($afiRows.Count -ne 100) {
