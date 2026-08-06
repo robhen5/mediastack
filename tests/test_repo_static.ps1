@@ -715,4 +715,69 @@ if ($marvelUnavailableRows.Count -ne 3) {
     throw "Marvel MCU unavailable list must preserve exactly three not-yet-requestable announced projects."
 }
 
+$genrePillarLists = @(
+    @{ Path = Join-Path $repoRoot "docs/lists/noir-essentials.csv"; MinRows = 20 },
+    @{ Path = Join-Path $repoRoot "docs/lists/western-essentials.csv"; MinRows = 20 },
+    @{ Path = Join-Path $repoRoot "docs/lists/sci-fi-essentials.csv"; MinRows = 20 },
+    @{ Path = Join-Path $repoRoot "docs/lists/horror-classics.csv"; MinRows = 20 },
+    @{ Path = Join-Path $repoRoot "docs/lists/seventies-new-hollywood.csv"; MinRows = 20 },
+    @{ Path = Join-Path $repoRoot "docs/lists/nineties-crime-thriller.csv"; MinRows = 20 }
+)
+
+foreach ($list in $genrePillarLists) {
+    if (-not (Test-Path $list.Path)) {
+        throw "Missing genre pillar list: $($list.Path)"
+    }
+
+    $rows = Import-Csv -Path $list.Path
+    if ($rows.Count -lt $list.MinRows) {
+        throw "Genre pillar list $($list.Path) must contain at least $($list.MinRows) rows; found $($rows.Count)."
+    }
+
+    $missingRequiredFields = $rows | Where-Object {
+        -not $_.rank -or -not $_.title -or -not $_.year -or -not $_.notes
+    }
+    if ($missingRequiredFields.Count -ne 0) {
+        throw "Genre pillar list $($list.Path) has rows missing rank, title, year, or notes."
+    }
+
+    $duplicateRows = $rows | Group-Object title, year | Where-Object { $_.Count -gt 1 }
+    if ($duplicateRows.Count -ne 0) {
+        throw "Genre pillar list $($list.Path) contains duplicate title/year rows."
+    }
+}
+
+$genrePillarScript = Join-Path $repoRoot "scripts/request-genre-pillars.sh"
+$genrePillarScriptText = Get-Content -Raw -Path $genrePillarScript
+Assert-Contains `
+    -Text $genrePillarScriptText `
+    -Pattern 'APPLY="\$\{APPLY:-0\}"' `
+    -Message "Genre pillar wrapper must default to dry-run mode."
+
+Assert-Contains `
+    -Text $genrePillarScriptText `
+    -Pattern '--apply' `
+    -Message "Genre pillar wrapper must support explicit apply mode."
+
+$requiredGenreListNames = @(
+    "noir-essentials.csv",
+    "western-essentials.csv",
+    "sci-fi-essentials.csv",
+    "horror-classics.csv",
+    "seventies-new-hollywood.csv",
+    "nineties-crime-thriller.csv"
+)
+foreach ($name in $requiredGenreListNames) {
+    $escapedName = [regex]::Escape($name)
+    Assert-Contains `
+        -Text $genrePillarScriptText `
+        -Pattern $escapedName `
+        -Message "Genre pillar wrapper is missing $name."
+
+    Assert-Contains `
+        -Text $jellyseerrBulkDocText `
+        -Pattern $escapedName `
+        -Message "Bulk request docs are missing $name."
+}
+
 Write-Host "Static repository safety checks passed."

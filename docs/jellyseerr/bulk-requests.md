@@ -190,6 +190,43 @@ python3 scripts/request-jellyseerr-list.py \
 For a large queue, prefer batches with `--limit` and `--start-rank` so the HDD
 does not get flooded with searches/imports all at once.
 
+## Genre Pillars
+
+The genre pillar lists are curated starter expansions for broad movie-library
+coverage:
+
+```text
+docs/lists/noir-essentials.csv
+docs/lists/western-essentials.csv
+docs/lists/sci-fi-essentials.csv
+docs/lists/horror-classics.csv
+docs/lists/seventies-new-hollywood.csv
+docs/lists/nineties-crime-thriller.csv
+```
+
+Preview all six lists in one pass:
+
+```bash
+./scripts/request-genre-pillars.sh
+```
+
+Preview a smaller sample from every list:
+
+```bash
+LIMIT=10 ./scripts/request-genre-pillars.sh
+```
+
+Apply all six lists only after reviewing the dry-run output:
+
+```bash
+APPLY=1 ./scripts/request-genre-pillars.sh
+```
+
+The wrapper uses `JELLYSEERR_URL` when set, otherwise it defaults to
+`http://localhost:5055`. It still relies on `JELLYSEERR_API_KEY` from your shell
+session and still uses the duplicate/available-media checks in
+`request-jellyseerr-list.py`.
+
 ## Marvel MCU Projects
 
 The Marvel MCU project list contains requestable MCU films, Marvel Studios
