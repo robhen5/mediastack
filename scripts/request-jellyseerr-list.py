@@ -61,6 +61,34 @@ def media_status(result: dict[str, Any]) -> str:
     return str(status)
 
 
+def is_already_tracked(result: dict[str, Any]) -> bool:
+    return media_status(result) != "not_requested"
+
+
+def enrich_by_tmdb_id(row: MovieRow, args: argparse.Namespace) -> dict[str, Any]:
+    media_id = int(row.tmdb_id)
+    path = f"/api/v1/{row.media_type}/{media_id}"
+    status, payload = request_json(
+        "GET",
+        jellyseerr_url(args.url, path),
+        args.api_key,
+        args.timeout,
+    )
+    if status == 200 and isinstance(payload, dict):
+        payload.setdefault("id", media_id)
+        if row.media_type == "movie":
+            payload.setdefault("title", row.title)
+            payload.setdefault("releaseDate", row.year)
+        else:
+            payload.setdefault("name", row.title)
+            payload.setdefault("firstAirDate", row.year)
+        return payload
+    if status == 404:
+        date_key = "releaseDate" if row.media_type == "movie" else "firstAirDate"
+        return {"id": media_id, "title": row.title, date_key: row.year}
+    raise RuntimeError(f"{row.media_type.upper()} details HTTP {status}: {payload}")
+
+
 def tv_seasons(media_id: int, args: argparse.Namespace) -> list[int]:
     status, payload = request_json(
         "GET",
@@ -147,8 +175,7 @@ def search_movie(row: MovieRow, args: argparse.Namespace) -> tuple[str, dict[str
         return "invalid_media_type", None, f"expected media_type movie or tv, got {row.media_type!r}"
 
     if row.tmdb_id:
-        date_key = "releaseDate" if row.media_type == "movie" else "firstAirDate"
-        return "tmdb_id", {"id": int(row.tmdb_id), "title": row.title, date_key: row.year}, ""
+        return "tmdb_id", enrich_by_tmdb_id(row, args), ""
 
     status, payload = request_json(
         "GET",
@@ -190,6 +217,10 @@ def search_movie(row: MovieRow, args: argparse.Namespace) -> tuple[str, dict[str
 
 def request_movie(row: MovieRow, match: dict[str, Any], args: argparse.Namespace) -> tuple[str, str]:
     tmdb_id = int(match["id"])
+    existing_status = media_status(match)
+    if is_already_tracked(match) and not args.request_existing:
+        return "skipped", f"already tracked in Jellyseerr/Seerr with status={existing_status}"
+
     body = {"mediaType": row.media_type, "mediaId": tmdb_id}
     if row.media_type == "tv":
         seasons = tv_seasons(tmdb_id, args)
@@ -235,6 +266,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--server-id", type=int)
     parser.add_argument("--profile-id", type=int)
     parser.add_argument("--root-folder")
+    parser.add_argument(
+        "--request-existing",
+        action="store_true",
+        help="Post requests even when Jellyseerr/Seerr already reports mediaInfo for the row.",
+    )
     parser.add_argument(
         "--include-specials",
         action="store_true",

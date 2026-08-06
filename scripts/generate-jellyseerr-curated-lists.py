@@ -29,6 +29,31 @@ HITCHCOCK_UNAVAILABLE_CSV = "alfred-hitchcock-unavailable-in-tmdb.csv"
 BEST_ACTOR_CSV = "best-actor-nominated-films.csv"
 BEST_ACTOR_UNAVAILABLE_CSV = "best-actor-nominated-films-unavailable-in-tmdb.csv"
 
+DIRECTOR_LISTS = {
+    "kubrick": ("stanley-kubrick", ["Stanley Kubrick"]),
+    "scorsese": ("martin-scorsese", ["Martin Scorsese"]),
+    "spielberg": ("steven-spielberg", ["Steven Spielberg"]),
+    "kurosawa": ("akira-kurosawa", ["Akira Kurosawa"]),
+    "fincher": ("david-fincher", ["David Fincher"]),
+    "coppola": ("francis-ford-coppola", ["Francis Ford Coppola"]),
+    "coen-brothers": ("coen-brothers", ["Joel Coen", "Ethan Coen"]),
+    "billy-wilder": ("billy-wilder", ["Billy Wilder"]),
+    "sidney-lumet": ("sidney-lumet", ["Sidney Lumet"]),
+    "john-carpenter": ("john-carpenter", ["John Carpenter"]),
+    "sergio-leone": ("sergio-leone", ["Sergio Leone"]),
+    "brian-de-palma": ("brian-de-palma", ["Brian De Palma"]),
+    "michael-mann": ("michael-mann", ["Michael Mann"]),
+    "ridley-scott": ("ridley-scott", ["Ridley Scott"]),
+}
+
+DIRECTOR_STARTERS = [
+    "kubrick",
+    "scorsese",
+    "spielberg",
+    "kurosawa",
+    "fincher",
+]
+
 
 HITCHCOCK_QUERY = """
 SELECT ?film ?filmLabel ?tmdb (MIN(?date) AS ?firstDate) WHERE {
@@ -57,6 +82,26 @@ SELECT ?film ?filmLabel ?tmdb (MIN(?date) AS ?firstDate)
   OPTIONAL { ?film wdt:P4947 ?tmdb. }
   OPTIONAL { ?film wdt:P577 ?date. }
 }
+GROUP BY ?film ?filmLabel ?tmdb
+ORDER BY ?firstDate ?filmLabel
+"""
+
+
+DIRECTOR_QUERY_TEMPLATE = """
+SELECT ?film ?filmLabel ?tmdb (MIN(?date) AS ?firstDate)
+       (GROUP_CONCAT(DISTINCT ?directorLabel; separator=", ") AS ?directors) WHERE {{
+  VALUES ?wantedDirectorLabel {{ {director_values} }}
+  ?director wdt:P31 wd:Q5;
+            rdfs:label ?wantedDirectorLabel;
+            rdfs:label ?directorLabel.
+  FILTER(LANG(?directorLabel) = "en")
+  ?film wdt:P31/wdt:P279* wd:Q11424;
+        wdt:P57 ?director;
+        rdfs:label ?filmLabel.
+  FILTER(LANG(?filmLabel) = "en")
+  OPTIONAL {{ ?film wdt:P4947 ?tmdb. }}
+  OPTIONAL {{ ?film wdt:P577 ?date. }}
+}}
 GROUP BY ?film ?filmLabel ?tmdb
 ORDER BY ?firstDate ?filmLabel
 """
@@ -179,14 +224,55 @@ def best_actor_rows(timeout: float, retries: int) -> list[CsvRow]:
     return dedupe_by_tmdb_or_title(rows)
 
 
+def director_query(director_labels: list[str]) -> str:
+    values = " ".join(f'"{label}"@en' for label in director_labels)
+    return DIRECTOR_QUERY_TEMPLATE.format(director_values=values)
+
+
+def director_rows(slug: str, timeout: float, retries: int) -> list[CsvRow]:
+    _, director_labels = DIRECTOR_LISTS[slug]
+    query = director_query(director_labels)
+    rows: list[CsvRow] = []
+    for index, binding in enumerate(sparql(query, timeout, retries), start=1):
+        title = value(binding, "filmLabel")
+        directors = value(binding, "directors")
+        if not title or title.startswith("Q"):
+            continue
+        rows.append(
+            CsvRow(
+                rank=index,
+                title=title,
+                year=year_from_date(value(binding, "firstDate")),
+                tmdb_id=value(binding, "tmdb"),
+                notes=(
+                    f"Directed by {directors or ', '.join(director_labels)}"
+                    + "; source: Wikidata director film query"
+                ),
+            )
+        )
+    return dedupe_by_tmdb_or_title(rows)
+
+
+def write_director_list(slug: str, output_dir: Path, timeout: float, retries: int) -> None:
+    output_slug, _ = DIRECTOR_LISTS[slug]
+    requestable, unavailable = split_requestable(director_rows(slug, timeout, retries))
+    requestable_path = output_dir / f"{output_slug}-filmography.csv"
+    unavailable_path = output_dir / f"{output_slug}-unavailable-in-tmdb.csv"
+    write_rows(requestable_path, requestable)
+    write_rows(unavailable_path, unavailable)
+    print(f"Wrote {len(requestable)} requestable {output_slug} rows to {requestable_path}")
+    print(f"Wrote {len(unavailable)} {output_slug} rows without TMDB IDs to {unavailable_path}")
+
+
 def parse_args() -> argparse.Namespace:
+    list_choices = ["all", "hitchcock", "best-actor", "director-starters", *DIRECTOR_LISTS.keys()]
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
     parser.add_argument("--timeout", type=float, default=60)
     parser.add_argument("--retries", type=int, default=2)
     parser.add_argument(
         "--list",
-        choices=["all", "hitchcock", "best-actor"],
+        choices=list_choices,
         default="all",
         help="Which list to generate.",
     )
@@ -210,6 +296,17 @@ def main() -> int:
         write_rows(output_dir / BEST_ACTOR_UNAVAILABLE_CSV, unavailable)
         print(f"Wrote {len(requestable)} requestable Best Actor rows to {output_dir / BEST_ACTOR_CSV}")
         print(f"Wrote {len(unavailable)} Best Actor rows without TMDB IDs to {output_dir / BEST_ACTOR_UNAVAILABLE_CSV}")
+
+    director_slugs: list[str] = []
+    if args.list == "all":
+        director_slugs = DIRECTOR_STARTERS
+    elif args.list == "director-starters":
+        director_slugs = DIRECTOR_STARTERS
+    elif args.list in DIRECTOR_LISTS:
+        director_slugs = [args.list]
+
+    for slug in director_slugs:
+        write_director_list(slug, output_dir, args.timeout, args.retries)
 
     print("Review the generated CSVs, then request them with scripts/request-jellyseerr-list.py.")
     return 0

@@ -563,6 +563,21 @@ Assert-Contains `
     -Pattern 'body\["seasons"\] = seasons' `
     -Message "Jellyseerr bulk request script must include seasons for TV requests."
 
+Assert-Contains `
+    -Text $jellyseerrBulkText `
+    -Pattern 'request-existing' `
+    -Message "Jellyseerr bulk request script must expose an explicit override for already-tracked media."
+
+Assert-Contains `
+    -Text $jellyseerrBulkText `
+    -Pattern 'already tracked in Jellyseerr/Seerr' `
+    -Message "Jellyseerr bulk request script must skip already available/requested media by default."
+
+Assert-Contains `
+    -Text $jellyseerrBulkText `
+    -Pattern '/api/v1/\{row\.media_type\}/\{media_id\}' `
+    -Message "Jellyseerr bulk request script must status-check TMDB-ID rows through media detail endpoints."
+
 $jellyseerrListGeneratorText = Get-Content -Raw -Path $jellyseerrListGenerator
 Assert-Contains `
     -Text $jellyseerrListGeneratorText `
@@ -578,6 +593,16 @@ Assert-Contains `
     -Text $jellyseerrListGeneratorText `
     -Pattern 'best-actor-nominated-films\.csv' `
     -Message "Curated list generator must write the Best Actor nomination request list."
+
+Assert-Contains `
+    -Text $jellyseerrListGeneratorText `
+    -Pattern 'DIRECTOR_STARTERS' `
+    -Message "Curated list generator must expose a starter director batch."
+
+Assert-Contains `
+    -Text $jellyseerrListGeneratorText `
+    -Pattern 'stanley-kubrick' `
+    -Message "Curated list generator must be able to write director filmography lists."
 
 Assert-NotContains `
     -Text $jellyseerrListGeneratorText `

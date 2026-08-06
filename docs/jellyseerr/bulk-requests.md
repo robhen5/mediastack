@@ -9,6 +9,8 @@ The script is safe by default:
 - Matches exact title and release year where possible.
 - Skips ambiguous matches unless `--allow-ambiguous` is passed.
 - Processes in batches with `--limit`.
+- Checks Jellyseerr/Seerr status and skips rows that are already available or
+  already tracked unless `--request-existing` is passed.
 
 ## API Key
 
@@ -292,3 +294,67 @@ Continue with `--start-rank` using the rank values shown in the output. The
 Best Actor list overlaps heavily with the Best Picture list, so already
 available or previously requested films are expected and safe to rerun through
 the request endpoint.
+
+## Director Filmographies
+
+The curated list generator can also create director filmographies. The starter
+set is intentionally sharp and storage-efficient:
+
+- Stanley Kubrick
+- Martin Scorsese
+- Steven Spielberg
+- Akira Kurosawa
+- David Fincher
+
+Generate the starter director lists:
+
+```bash
+python3 scripts/generate-jellyseerr-curated-lists.py --list director-starters
+```
+
+Generate a single director list:
+
+```bash
+python3 scripts/generate-jellyseerr-curated-lists.py --list kubrick
+```
+
+Available director choices:
+
+```text
+kubrick
+scorsese
+spielberg
+kurosawa
+fincher
+coppola
+coen-brothers
+billy-wilder
+sidney-lumet
+john-carpenter
+sergio-leone
+brian-de-palma
+michael-mann
+ridley-scott
+```
+
+Dry-run a director list:
+
+```bash
+python3 scripts/request-jellyseerr-list.py \
+  --url http://localhost:5055 \
+  --list docs/lists/stanley-kubrick-filmography.csv
+```
+
+Apply after reviewing the dry-run:
+
+```bash
+python3 scripts/request-jellyseerr-list.py \
+  --url http://localhost:5055 \
+  --list docs/lists/stanley-kubrick-filmography.csv \
+  --apply
+```
+
+The requester now status-checks TMDB-ID rows before posting requests. If a
+movie is already available or already tracked in Jellyseerr/Seerr, it is skipped
+by default. Use `--request-existing` only if you intentionally want to resend
+requests for rows that Seerr already knows about.
