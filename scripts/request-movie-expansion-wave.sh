@@ -79,6 +79,12 @@ run_deep_essentials() {
   run_list "docs/lists/animation-essentials.csv"
 }
 
+run_disney() {
+  run_list "docs/lists/disney-animation-canon.csv"
+  run_list "docs/lists/pixar-features.csv"
+  run_list "docs/lists/disney-family-classics.csv"
+}
+
 case "$WAVE" in
   genres)
     run_genres
@@ -95,15 +101,19 @@ case "$WAVE" in
   essentials)
     run_deep_essentials
     ;;
+  disney)
+    run_disney
+    ;;
   all)
     run_genres
     run_deep_essentials
+    run_disney
     run_awards
     run_directors
     run_actors
     ;;
   *)
-    echo "ERROR: WAVE must be one of: all, genres, essentials, awards, directors, actors" >&2
+    echo "ERROR: WAVE must be one of: all, genres, essentials, disney, awards, directors, actors" >&2
     exit 2
     ;;
 esac

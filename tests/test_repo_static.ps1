@@ -811,6 +811,30 @@ foreach ($list in $deepEssentialLists) {
     }
 }
 
+$disneyLists = @(
+    @{ Path = Join-Path $repoRoot "docs/lists/disney-animation-canon.csv"; MinRows = 60 },
+    @{ Path = Join-Path $repoRoot "docs/lists/pixar-features.csv"; MinRows = 30 },
+    @{ Path = Join-Path $repoRoot "docs/lists/disney-family-classics.csv"; MinRows = 50 }
+)
+
+foreach ($list in $disneyLists) {
+    if (-not (Test-Path $list.Path)) {
+        throw "Missing Disney/Pixar list: $($list.Path)"
+    }
+
+    $rows = Import-Csv -Path $list.Path
+    if ($rows.Count -lt $list.MinRows) {
+        throw "Disney/Pixar list $($list.Path) must contain at least $($list.MinRows) rows; found $($rows.Count)."
+    }
+
+    $missingRequiredFields = $rows | Where-Object {
+        -not $_.rank -or -not $_.title -or -not $_.year -or -not $_.notes
+    }
+    if ($missingRequiredFields.Count -ne 0) {
+        throw "Disney/Pixar list $($list.Path) has rows missing rank, title, year, or notes."
+    }
+}
+
 $directorDeepDiveScript = Join-Path $repoRoot "scripts/generate-director-deep-dive.sh"
 $directorDeepDiveScriptText = Get-Content -Raw -Path $directorDeepDiveScript
 Assert-Contains `
@@ -849,6 +873,16 @@ Assert-Contains `
 
 Assert-Contains `
     -Text $movieExpansionScriptText `
+    -Pattern 'disney-animation-canon\.csv' `
+    -Message "Movie expansion wave wrapper must include Disney/Pixar lists."
+
+Assert-Contains `
+    -Text $movieExpansionScriptText `
+    -Pattern 'disney\)' `
+    -Message "Movie expansion wave wrapper must support WAVE=disney."
+
+Assert-Contains `
+    -Text $movieExpansionScriptText `
     -Pattern 'essentials\)' `
     -Message "Movie expansion wave wrapper must support WAVE=essentials."
 
@@ -882,5 +916,10 @@ Assert-Contains `
     -Text $jellyseerrBulkDocText `
     -Pattern 'Deep Essential Waves' `
     -Message "Bulk request docs must document the deep essential waves."
+
+Assert-Contains `
+    -Text $jellyseerrBulkDocText `
+    -Pattern 'Disney and Pixar Classics' `
+    -Message "Bulk request docs must document Disney/Pixar waves."
 
 Write-Host "Static repository safety checks passed."

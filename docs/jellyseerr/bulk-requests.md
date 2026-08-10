@@ -244,6 +244,7 @@ Preview one wave:
 ```bash
 WAVE=directors ./scripts/request-movie-expansion-wave.sh
 WAVE=essentials ./scripts/request-movie-expansion-wave.sh
+WAVE=disney ./scripts/request-movie-expansion-wave.sh
 WAVE=awards ./scripts/request-movie-expansion-wave.sh
 WAVE=genres ./scripts/request-movie-expansion-wave.sh
 WAVE=actors ./scripts/request-movie-expansion-wave.sh
@@ -296,6 +297,31 @@ Apply after reviewing the dry-run:
 
 ```bash
 WAVE=essentials APPLY=1 ./scripts/request-movie-expansion-wave.sh
+```
+
+## Disney and Pixar Classics
+
+The Disney wave includes Disney Animation theatrical features, Pixar feature
+films, and a broad Disney family/live-action classics list. It intentionally
+does not try to include every Disney Channel movie, acquired studio release, or
+Disney-owned label title.
+
+```text
+docs/lists/disney-animation-canon.csv
+docs/lists/pixar-features.csv
+docs/lists/disney-family-classics.csv
+```
+
+Preview Disney/Pixar/classics:
+
+```bash
+WAVE=disney ./scripts/request-movie-expansion-wave.sh
+```
+
+Apply after reviewing the dry-run:
+
+```bash
+WAVE=disney APPLY=1 ./scripts/request-movie-expansion-wave.sh
 ```
 
 ## Marvel MCU Projects
