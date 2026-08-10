@@ -7,6 +7,7 @@ URL="${JELLYSEERR_URL:-http://localhost:5055}"
 APPLY="${APPLY:-0}"
 LIMIT="${LIMIT:-}"
 WAVE="${WAVE:-all}"
+FAILURES=0
 
 args=(--url "$URL")
 if [[ -n "$LIMIT" ]]; then
@@ -31,7 +32,10 @@ run_list() {
 
   echo
   echo "==> $list"
-  python3 scripts/request-jellyseerr-list.py "${args[@]}" --list "$list"
+  if ! python3 scripts/request-jellyseerr-list.py "${args[@]}" --list "$list"; then
+    FAILURES=$((FAILURES + 1))
+    echo "WARN: $list completed with skipped/ambiguous/error rows. Continuing remaining wave lists."
+  fi
 }
 
 run_genres() {
@@ -118,3 +122,12 @@ case "$WAVE" in
     exit 2
     ;;
 esac
+
+if [[ "$FAILURES" -gt 0 ]]; then
+  echo
+  echo "Done with $FAILURES list(s) needing review."
+  exit 1
+fi
+
+echo
+echo "Done. All selected lists completed without review-blocking failures."

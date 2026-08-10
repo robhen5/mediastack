@@ -836,6 +836,31 @@ foreach ($list in $disneyLists) {
     }
 }
 
+$disneyAnimationRows = Import-Csv -Path (Join-Path $repoRoot "docs/lists/disney-animation-canon.csv")
+$requiredDisneyAnimationIds = @{
+    "Snow White and the Seven Dwarfs" = "408"
+    "Aladdin" = "812"
+    "Pocahontas" = "10530"
+    "The Hunchback of Notre Dame" = "10545"
+    "Hercules" = "11970"
+    "Mulan" = "10674"
+    "Fantasia 2000" = "49948"
+    "Strange World" = "877269"
+}
+
+foreach ($title in $requiredDisneyAnimationIds.Keys) {
+    $row = $disneyAnimationRows | Where-Object { $_.title -eq $title }
+    if (-not $row -or $row.tmdb_id -ne $requiredDisneyAnimationIds[$title]) {
+        throw "Disney Animation row must pin TMDB ID $($requiredDisneyAnimationIds[$title]) for $title."
+    }
+}
+
+$pixarRows = Import-Csv -Path (Join-Path $repoRoot "docs/lists/pixar-features.csv")
+$wallERow = $pixarRows | Where-Object { $_.title -eq "WALL-E" }
+if (-not $wallERow -or $wallERow.tmdb_id -ne "10681") {
+    throw "Pixar list must pin WALL-E to TMDB ID 10681."
+}
+
 $directorDeepDiveScript = Join-Path $repoRoot "scripts/generate-director-deep-dive.sh"
 $directorDeepDiveScriptText = Get-Content -Raw -Path $directorDeepDiveScript
 Assert-Contains `
@@ -861,6 +886,11 @@ Assert-Contains `
     -Text $movieExpansionScriptText `
     -Pattern 'APPLY="\$\{APPLY:-0\}"' `
     -Message "Movie expansion wave wrapper must default to dry-run mode."
+
+Assert-Contains `
+    -Text $movieExpansionScriptText `
+    -Pattern 'FAILURES=\$\(\(FAILURES \+ 1\)\)' `
+    -Message "Movie expansion wave wrapper must continue through later lists while tracking failures."
 
 Assert-Contains `
     -Text $movieExpansionScriptText `

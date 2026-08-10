@@ -1,5 +1,5 @@
 rank,title,year,tmdb_id,notes
-1,Snow White and the Seven Dwarfs,1937,,Disney Animation theatrical canon
+1,Snow White and the Seven Dwarfs,1937,408,Disney Animation theatrical canon
 2,Pinocchio,1940,,Disney Animation theatrical canon
 3,Fantasia,1940,,Disney Animation theatrical canon
 4,Dumbo,1941,,Disney Animation theatrical canon
@@ -29,14 +29,14 @@ rank,title,year,tmdb_id,notes
 28,The Little Mermaid,1989,,Disney Animation theatrical canon
 29,The Rescuers Down Under,1990,,Disney Animation theatrical canon
 30,Beauty and the Beast,1991,,Disney Animation theatrical canon
-31,Aladdin,1992,,Disney Animation theatrical canon
+31,Aladdin,1992,812,Disney Animation theatrical canon
 32,The Lion King,1994,,Disney Animation theatrical canon
-33,Pocahontas,1995,,Disney Animation theatrical canon
-34,The Hunchback of Notre Dame,1996,,Disney Animation theatrical canon
-35,Hercules,1997,,Disney Animation theatrical canon
-36,Mulan,1998,,Disney Animation theatrical canon
+33,Pocahontas,1995,10530,Disney Animation theatrical canon
+34,The Hunchback of Notre Dame,1996,10545,Disney Animation theatrical canon
+35,Hercules,1997,11970,Disney Animation theatrical canon
+36,Mulan,1998,10674,Disney Animation theatrical canon
 37,Tarzan,1999,,Disney Animation theatrical canon
-38,Fantasia 2000,1999,,Disney Animation theatrical canon
+38,Fantasia 2000,1999,49948,Disney Animation theatrical canon
 39,Dinosaur,2000,,Disney Animation theatrical canon
 40,The Emperor's New Groove,2000,,Disney Animation theatrical canon
 41,Atlantis: The Lost Empire,2001,,Disney Animation theatrical canon
@@ -59,7 +59,7 @@ rank,title,year,tmdb_id,notes
 58,Frozen II,2019,,Disney Animation theatrical canon
 59,Raya and the Last Dragon,2021,,Disney Animation theatrical canon
 60,Encanto,2021,,Disney Animation theatrical canon
-61,Strange World,2022,,Disney Animation theatrical canon
+61,Strange World,2022,877269,Disney Animation theatrical canon
 62,Wish,2023,,Disney Animation theatrical canon
 63,Moana 2,2024,,Disney Animation theatrical canon
 64,Zootopia 2,2025,,Disney Animation theatrical canon
