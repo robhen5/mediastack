@@ -780,4 +780,61 @@ foreach ($name in $requiredGenreListNames) {
         -Message "Bulk request docs are missing $name."
 }
 
+$directorDeepDiveScript = Join-Path $repoRoot "scripts/generate-director-deep-dive.sh"
+$directorDeepDiveScriptText = Get-Content -Raw -Path $directorDeepDiveScript
+Assert-Contains `
+    -Text $directorDeepDiveScriptText `
+    -Pattern 'START_AT="\$\{START_AT:-\}"' `
+    -Message "Director deep-dive generator must support START_AT resume."
+
+Assert-Contains `
+    -Text $directorDeepDiveScriptText `
+    -Pattern 'SLEEP_SECONDS="\$\{SLEEP_SECONDS:-75\}"' `
+    -Message "Director deep-dive generator must pause between Wikidata queries."
+
+foreach ($slug in @("scorsese", "coppola", "ridley-scott")) {
+    Assert-Contains `
+        -Text $directorDeepDiveScriptText `
+        -Pattern $slug `
+        -Message "Director deep-dive generator is missing $slug."
+}
+
+$movieExpansionScript = Join-Path $repoRoot "scripts/request-movie-expansion-wave.sh"
+$movieExpansionScriptText = Get-Content -Raw -Path $movieExpansionScript
+Assert-Contains `
+    -Text $movieExpansionScriptText `
+    -Pattern 'APPLY="\$\{APPLY:-0\}"' `
+    -Message "Movie expansion wave wrapper must default to dry-run mode."
+
+Assert-Contains `
+    -Text $movieExpansionScriptText `
+    -Pattern 'WAVE="\$\{WAVE:-all\}"' `
+    -Message "Movie expansion wave wrapper must support wave selection."
+
+Assert-Contains `
+    -Text $movieExpansionScriptText `
+    -Pattern 'martin-scorsese-filmography\.csv' `
+    -Message "Movie expansion wave wrapper must use the generated Scorsese filename."
+
+Assert-Contains `
+    -Text $movieExpansionScriptText `
+    -Pattern 'best-actor-nominated-films\.csv' `
+    -Message "Movie expansion wave wrapper must include Best Actor nominations."
+
+Assert-Contains `
+    -Text $movieExpansionScriptText `
+    -Pattern 'nicolas-cage-filmography\.csv' `
+    -Message "Movie expansion wave wrapper must include existing actor lists."
+
+$jellyseerrBulkDocText = Get-Content -Raw -Path $jellyseerrBulkDoc
+Assert-Contains `
+    -Text $jellyseerrBulkDocText `
+    -Pattern 'request-movie-expansion-wave\.sh' `
+    -Message "Bulk request docs must document the movie expansion wave wrapper."
+
+Assert-Contains `
+    -Text $jellyseerrBulkDocText `
+    -Pattern 'generate-director-deep-dive\.sh' `
+    -Message "Bulk request docs must document the director deep-dive generator."
+
 Write-Host "Static repository safety checks passed."

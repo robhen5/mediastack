@@ -227,6 +227,51 @@ The wrapper uses `JELLYSEERR_URL` when set, otherwise it defaults to
 session and still uses the duplicate/available-media checks in
 `request-jellyseerr-list.py`.
 
+## Big Movie Expansion Waves
+
+Use the wave wrapper when you want to sweep multiple curated lists without
+remembering every generated filename. It defaults to dry-run and skips generated
+director/award files that do not exist yet.
+
+Preview every known wave:
+
+```bash
+./scripts/request-movie-expansion-wave.sh
+```
+
+Preview one wave:
+
+```bash
+WAVE=directors ./scripts/request-movie-expansion-wave.sh
+WAVE=awards ./scripts/request-movie-expansion-wave.sh
+WAVE=genres ./scripts/request-movie-expansion-wave.sh
+WAVE=actors ./scripts/request-movie-expansion-wave.sh
+```
+
+Apply one reviewed wave:
+
+```bash
+WAVE=directors APPLY=1 ./scripts/request-movie-expansion-wave.sh
+```
+
+Use `LIMIT=25` when you want readable chunks:
+
+```bash
+WAVE=awards LIMIT=25 ./scripts/request-movie-expansion-wave.sh
+```
+
+Generate director CSVs before running the director wave:
+
+```bash
+./scripts/generate-director-deep-dive.sh
+```
+
+If Wikidata rate-limits a run, resume from a later director:
+
+```bash
+START_AT=coppola ./scripts/generate-director-deep-dive.sh
+```
+
 ## Marvel MCU Projects
 
 The Marvel MCU project list contains requestable MCU films, Marvel Studios
