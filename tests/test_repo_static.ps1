@@ -780,6 +780,37 @@ foreach ($name in $requiredGenreListNames) {
         -Message "Bulk request docs are missing $name."
 }
 
+$deepEssentialLists = @(
+    @{ Path = Join-Path $repoRoot "docs/lists/boutique-restoration-essentials.csv"; MinRows = 30 },
+    @{ Path = Join-Path $repoRoot "docs/lists/world-cinema-essentials.csv"; MinRows = 30 },
+    @{ Path = Join-Path $repoRoot "docs/lists/cult-midnight-essentials.csv"; MinRows = 30 },
+    @{ Path = Join-Path $repoRoot "docs/lists/documentary-essentials.csv"; MinRows = 30 },
+    @{ Path = Join-Path $repoRoot "docs/lists/animation-essentials.csv"; MinRows = 30 }
+)
+
+foreach ($list in $deepEssentialLists) {
+    if (-not (Test-Path $list.Path)) {
+        throw "Missing deep essential list: $($list.Path)"
+    }
+
+    $rows = Import-Csv -Path $list.Path
+    if ($rows.Count -lt $list.MinRows) {
+        throw "Deep essential list $($list.Path) must contain at least $($list.MinRows) rows; found $($rows.Count)."
+    }
+
+    $missingRequiredFields = $rows | Where-Object {
+        -not $_.rank -or -not $_.title -or -not $_.year -or -not $_.notes
+    }
+    if ($missingRequiredFields.Count -ne 0) {
+        throw "Deep essential list $($list.Path) has rows missing rank, title, year, or notes."
+    }
+
+    $duplicateRows = $rows | Group-Object title, year | Where-Object { $_.Count -gt 1 }
+    if ($duplicateRows.Count -ne 0) {
+        throw "Deep essential list $($list.Path) contains duplicate title/year rows."
+    }
+}
+
 $directorDeepDiveScript = Join-Path $repoRoot "scripts/generate-director-deep-dive.sh"
 $directorDeepDiveScriptText = Get-Content -Raw -Path $directorDeepDiveScript
 Assert-Contains `
@@ -813,6 +844,16 @@ Assert-Contains `
 
 Assert-Contains `
     -Text $movieExpansionScriptText `
+    -Pattern 'boutique-restoration-essentials\.csv' `
+    -Message "Movie expansion wave wrapper must include deep essential lists."
+
+Assert-Contains `
+    -Text $movieExpansionScriptText `
+    -Pattern 'essentials\)' `
+    -Message "Movie expansion wave wrapper must support WAVE=essentials."
+
+Assert-Contains `
+    -Text $movieExpansionScriptText `
     -Pattern 'martin-scorsese-filmography\.csv' `
     -Message "Movie expansion wave wrapper must use the generated Scorsese filename."
 
@@ -836,5 +877,10 @@ Assert-Contains `
     -Text $jellyseerrBulkDocText `
     -Pattern 'generate-director-deep-dive\.sh' `
     -Message "Bulk request docs must document the director deep-dive generator."
+
+Assert-Contains `
+    -Text $jellyseerrBulkDocText `
+    -Pattern 'Deep Essential Waves' `
+    -Message "Bulk request docs must document the deep essential waves."
 
 Write-Host "Static repository safety checks passed."

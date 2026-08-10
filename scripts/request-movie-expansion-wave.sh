@@ -71,6 +71,14 @@ run_actors() {
   run_list "docs/lists/john-wayne-filmography.csv"
 }
 
+run_deep_essentials() {
+  run_list "docs/lists/boutique-restoration-essentials.csv"
+  run_list "docs/lists/world-cinema-essentials.csv"
+  run_list "docs/lists/cult-midnight-essentials.csv"
+  run_list "docs/lists/documentary-essentials.csv"
+  run_list "docs/lists/animation-essentials.csv"
+}
+
 case "$WAVE" in
   genres)
     run_genres
@@ -84,14 +92,18 @@ case "$WAVE" in
   actors)
     run_actors
     ;;
+  essentials)
+    run_deep_essentials
+    ;;
   all)
     run_genres
+    run_deep_essentials
     run_awards
     run_directors
     run_actors
     ;;
   *)
-    echo "ERROR: WAVE must be one of: all, genres, awards, directors, actors" >&2
+    echo "ERROR: WAVE must be one of: all, genres, essentials, awards, directors, actors" >&2
     exit 2
     ;;
 esac

@@ -243,6 +243,7 @@ Preview one wave:
 
 ```bash
 WAVE=directors ./scripts/request-movie-expansion-wave.sh
+WAVE=essentials ./scripts/request-movie-expansion-wave.sh
 WAVE=awards ./scripts/request-movie-expansion-wave.sh
 WAVE=genres ./scripts/request-movie-expansion-wave.sh
 WAVE=actors ./scripts/request-movie-expansion-wave.sh
@@ -270,6 +271,31 @@ If Wikidata rate-limits a run, resume from a later director:
 
 ```bash
 START_AT=coppola ./scripts/generate-director-deep-dive.sh
+```
+
+## Deep Essential Waves
+
+These lists are meant for the next layer after obvious canon, AFI, Best
+Picture, and major director lists are already mostly covered:
+
+```text
+docs/lists/boutique-restoration-essentials.csv
+docs/lists/world-cinema-essentials.csv
+docs/lists/cult-midnight-essentials.csv
+docs/lists/documentary-essentials.csv
+docs/lists/animation-essentials.csv
+```
+
+Preview the deep essential wave:
+
+```bash
+WAVE=essentials ./scripts/request-movie-expansion-wave.sh
+```
+
+Apply after reviewing the dry-run:
+
+```bash
+WAVE=essentials APPLY=1 ./scripts/request-movie-expansion-wave.sh
 ```
 
 ## Marvel MCU Projects
