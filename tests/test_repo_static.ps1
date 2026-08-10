@@ -814,7 +814,8 @@ foreach ($list in $deepEssentialLists) {
 $disneyLists = @(
     @{ Path = Join-Path $repoRoot "docs/lists/disney-animation-canon.csv"; MinRows = 60 },
     @{ Path = Join-Path $repoRoot "docs/lists/pixar-features.csv"; MinRows = 30 },
-    @{ Path = Join-Path $repoRoot "docs/lists/disney-family-classics.csv"; MinRows = 50 }
+    @{ Path = Join-Path $repoRoot "docs/lists/disney-family-classics.csv"; MinRows = 50 },
+    @{ Path = Join-Path $repoRoot "docs/lists/disney-vault-classics.csv"; MinRows = 80 }
 )
 
 foreach ($list in $disneyLists) {
@@ -878,6 +879,11 @@ Assert-Contains `
 
 Assert-Contains `
     -Text $movieExpansionScriptText `
+    -Pattern 'disney-vault-classics\.csv' `
+    -Message "Movie expansion wave wrapper must include old Disney vault classics."
+
+Assert-Contains `
+    -Text $movieExpansionScriptText `
     -Pattern 'disney\)' `
     -Message "Movie expansion wave wrapper must support WAVE=disney."
 
@@ -921,5 +927,10 @@ Assert-Contains `
     -Text $jellyseerrBulkDocText `
     -Pattern 'Disney and Pixar Classics' `
     -Message "Bulk request docs must document Disney/Pixar waves."
+
+Assert-Contains `
+    -Text $jellyseerrBulkDocText `
+    -Pattern 'The Absent-Minded Professor' `
+    -Message "Bulk request docs must explain the old Disney professor titles."
 
 Write-Host "Static repository safety checks passed."

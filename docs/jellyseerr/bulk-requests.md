@@ -310,7 +310,16 @@ Disney-owned label title.
 docs/lists/disney-animation-canon.csv
 docs/lists/pixar-features.csv
 docs/lists/disney-family-classics.csv
+docs/lists/disney-vault-classics.csv
 ```
+
+`disney-vault-classics.csv` is the deeper old live-action/vault pass. It
+includes titles like `The Shaggy Dog`, `Son of Flubber`, `The Apple Dumpling
+Gang`, `Candleshoe`, and `The Journey of Natty Gann`. `Swiss Family Robinson`,
+`Bedknobs and Broomsticks`, and `The Absent-Minded Professor` are in
+`disney-family-classics.csv`; the Jerry Lewis `The Nutty Professor` is not a
+Disney movie, but `The Absent-Minded Professor`/`Son of Flubber` cover the
+classic Disney professor lane.
 
 Preview Disney/Pixar/classics:
 

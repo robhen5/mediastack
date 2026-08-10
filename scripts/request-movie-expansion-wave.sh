@@ -83,6 +83,7 @@ run_disney() {
   run_list "docs/lists/disney-animation-canon.csv"
   run_list "docs/lists/pixar-features.csv"
   run_list "docs/lists/disney-family-classics.csv"
+  run_list "docs/lists/disney-vault-classics.csv"
 }
 
 case "$WAVE" in
